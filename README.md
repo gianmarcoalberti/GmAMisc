@@ -109,7 +109,7 @@ The function also returns a list containing the following:
 
 <br>
 
-`prob.phases.relat()`: unction to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases. The function allows to calculate the posterior probability for different chronological relations between two phases defined via Bayesian radiocarbon modeling. For the results to make sense, the phases have to be defined as independent if one wishes to assess what is the posterior probability for different relative chronological relations between them.
+`prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases. The function allows to calculate the posterior probability for different chronological relations between two phases defined via Bayesian radiocarbon modeling. For the results to make sense, the phases have to be defined as independent if one wishes to assess what is the posterior probability for different relative chronological relations between them.
 The rationale for this approach is made clear in an article by Buck et al 1992 (https://doi.org/10.1016/0305-4403(92)90025-X), and it runs as follows: "if we do not make any assumption about the relationship between the phases, can we test how likely they are to be in any given order"?
 The function takes as input the table provided by the 'OxCal' program as result of the 'Order' query. Once the table as been saved from 'OxCal' in .csv format, you have to feed it in R. A .csv file can be imported into R using (for instance): `mydata <- read.table(file.choose(), header=TRUE, sep=",", dec=".", as.is=T)`
 Make sure to insert the phases' parameters (i.e., the starting and ending boundaries of the two phases) in the OxCal's Order query in the following order: StartA, EndA, StartB, EndB. That is, first the start and end of your first phase, then the start and end of the second one. You can give any name to your phases, as long as the order is like the one described.
@@ -131,12 +131,15 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
-`robustBAplot()`: function to plot a robust version of the Bland-Altman plot. The function allows to plot a robust version of the Bland-Altman plot. The chart is based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. *Fundamentals of modern statistical methods: Substantially improving power and accuracy*. New York: Springer) instead of mean and standard deviation.
-The x-axis displays the median of the estimated and reported duration, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus `z*(MAD/0.6745)`.
+`robustBAplot()`: function to plot a robust version of the Bland-Altman plot. It returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. *Fundamentals of modern statistical methods: Substantially improving power and accuracy*. New York: Springer) instead of mean and standard deviation.
+The x-axis displays the median of the two variables being compared, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus `z*(MAD/0.6745)`.
 
 <br>
 
 ## History
+`version 0.2`: 
+bug fixes, improvement to the help documentation, iprovements to the README file.
+
 `version 0.1`: 
 first release.
 
@@ -155,7 +158,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.1")
+install_github("gianmarcoalberti/GmAMisc@v0.2")
 ```
 4) load the package: 
 ```r
