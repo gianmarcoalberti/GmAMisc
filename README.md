@@ -41,7 +41,8 @@ The package comes with some toy datasets:
 
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
 
-<br>
+<br><br>
+
 ## History
 `version 0.1`: 
 first release.
