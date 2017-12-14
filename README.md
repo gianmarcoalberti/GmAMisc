@@ -13,6 +13,7 @@ The package comes with some toy datasets:
 
 `radioc_data`: posterior probabilities for the Starting and Ending boundaries of two 14C phases.
 
+<br>
 
 ## List of implemented functions
 `aucadj()`: function for optimism-adjusted AUC (internal validation).
@@ -41,12 +42,13 @@ The package comes with some toy datasets:
 
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
 
-<br><br>
+<br>
 
 ## History
 `version 0.1`: 
 first release.
 
+<br>
 
 ## Installation
 To install the package in R, just follow the few steps listed below:
