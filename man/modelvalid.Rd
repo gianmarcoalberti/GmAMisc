@@ -29,7 +29,6 @@ modelvalid(data=log_regr_data, fit=model, B=1000) # run the function, using 1000
 
 }
 \keyword{bootstrap}
-\keyword{internal}
 \keyword{logistic}
 \keyword{regression}
 \keyword{validation}
