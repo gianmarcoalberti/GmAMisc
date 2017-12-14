@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.1
+vers 0.2
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
