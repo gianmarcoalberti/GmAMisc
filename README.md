@@ -16,22 +16,35 @@ The package comes with some toy datasets:
 
 ## List of implemented functions
 `aucadj()`: function for optimism-adjusted AUC (internal validation).
+
 `BRsim()`: unction for Brainerd-Robinson simiarity coefficient.
+
 `chiperm()`: function for permutation-based chi-square test of independence.
+
 `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
+
 `logregr()`: function easy binary Logistic Regression and model diagnostics.
+
 `modelvalid()`: function for binary Logistic Regression internal validation.
+
 `mwPlot()`: function for visually displaying Mann-Whitney test's results.
+
 `outlier`: function for univariate outliers detection.
+
 `perm.t.test()`: function for permutation-based t-test.
+
 `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
+
 `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
+
 `prob.phases.relat()`: unction to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
+
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
 
 <br>
 ## History
-`version 0.1`: first release.
+`version 0.1`: 
+first release.
 
 
 ## Installation
