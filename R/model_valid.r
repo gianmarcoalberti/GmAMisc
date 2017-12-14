@@ -10,7 +10,7 @@
 #' @param data: dataframe containing the dataset (Dependent Variable must be stored in the first column to the left).
 #' @param fit: object returned from glm() function.
 #' @param B: desired number of iterations (see description of the procedure above).
-#' @keywords logistic regression internal validation bootstrap
+#' @keywords logistic regression validation bootstrap
 #' @export
 #' @examples
 #' data(log_regr_data) # load the sample dataset
