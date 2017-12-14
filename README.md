@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.2
+vers 0.3
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
@@ -138,6 +138,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.3`: 
+typos correction in the README file, one conflicting keyword removed from the `modelvalid()` function.
+
 `version 0.2`: 
 bug fixes, improvement to the help documentation, improvements to the README file.
 
@@ -159,7 +162,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.2")
+install_github("gianmarcoalberti/GmAMisc@v0.3")
 ```
 4) load the package: 
 ```r
