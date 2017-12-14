@@ -138,7 +138,7 @@ The x-axis displays the median of the two variables being compared, while the y-
 
 ## History
 `version 0.2`: 
-bug fixes, improvement to the help documentation, iprovements to the README file.
+bug fixes, improvement to the help documentation, improvements to the README file.
 
 `version 0.1`: 
 first release.
