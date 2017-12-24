@@ -72,12 +72,12 @@ The function returns two boxplots that represent the training and the testing (i
 
 <br>
 
-`monthlyWind()`: The function allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages. The extent of the study area can be specified either by entering the geographic coordinates, or on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model). 
+`monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages. The extent of the study area can be specified either by entering the geographic coordinates, or on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model). 
 
 The function saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.
 The function returns a list containing the following data:\cr
-* `$windMonth`: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km)\cr
-* `$windMonthFit`: stores the wind speed and direction for each output grid cell.\cr
+* `$windMonth`: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km);
+* `$windMonthFit`: stores the wind speed and direction for each output grid cell.
 
 The function builds upon the `wind.dl()` function from Javier Fernández-López's package `rWind`. The help provided by Dr Fernández-López in creating an earlier version of the `monthlyWind()` function is gratefully acknowledged.
 
