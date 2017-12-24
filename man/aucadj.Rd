@@ -26,7 +26,7 @@ At the bottom of the chart, the apparent AUC (i.e., the value deriving from the 
 \examples{
 data(log_regr_data) # load the sample dataset
 model <- glm(admit ~ gre + gpa + rank, data = log_regr_data, family = "binomial") # fit a logistic regression model, storing the results into an object called 'model'
-aucadj(data=mydata, fit=model, B=200)
+aucadj(data=log_regr_data, fit=model, B=200)
 
 }
 \keyword{AUC}

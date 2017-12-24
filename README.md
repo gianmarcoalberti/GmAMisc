@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.3
+vers 0.4
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
@@ -69,6 +69,17 @@ The procedure consists of the following steps:
 * (3) steps 1-2 are repeated B times, eventually getting a fitting and validation distribution of the AUC values. The former provides an estimate of the performance of the model in the population of all the theoretical training samples; the latter represents an estimate of the model’s performance on new and independent data.
 
 The function returns two boxplots that represent the training and the testing (i.e., validation) distribution of the AUC value across the 1000 iterations. For an example of the interpretation of the chart, see the aforementioned article, especially page 390-91.
+
+<br>
+
+`monthlyWind()`: The function allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages. The extent of the study area can be specified either by entering the geographic coordinates, or on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model). 
+
+The function saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.
+The function returns a list containing the following data:\cr
+* `$windMonth`: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km)\cr
+* `$windMonthFit`: stores the wind speed and direction for each output grid cell.\cr
+
+The function builds upon the `wind.dl()` function from Javier Fernández-López's package `rWind`. The help provided by Dr Fernández-López in creating an earlier version of the `monthlyWind()` function is gratefully acknowledged.
 
 <br>
 
@@ -145,6 +156,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.4`: 
+fix to the help documentation of the `aucadj()` function; `monthlyWind()` function added.
+
 `version 0.3`: 
 typos correction in the README file, one conflicting keyword removed from the `modelvalid()` function.
 
@@ -169,7 +183,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.3")
+install_github("gianmarcoalberti/GmAMisc@v0.4")
 ```
 4) load the package: 
 ```r
