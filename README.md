@@ -16,6 +16,24 @@ The package comes with some toy datasets:
 <br>
 
 ## List of implemented functions
+* `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
+* `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
+* `chiperm()`: function for permutation-based chi-square test of independence.
+* `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
+* `logregr()`: function easy binary Logistic Regression and model diagnostics.
+* `modelvalid()`: function for binary Logistic Regression internal validation.
+* `monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
+* `mwPlot()`: function for visually displaying Mann-Whitney test's results.
+* `outlier`: function for univariate outliers detection.
+* `perm.t.test()`: function for permutation-based t-test.
+* `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
+* `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
+* `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
+* `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
+
+<br>
+
+## Description of implemented functions
 `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation). The function allows to calculate the AUC of a (binary) Logistic Regression model, adjusted for optimism. The function performs an internal validation of a model via a bootstrap procedure (devised by Harrell and colleagues), which enables to estimate the degree of optimism of a fitted model and the extent to which the model will be able to generalize outside the training dataset.
 The returned boxplots represent:
 * the distribution of the AUC value in the bootstrap sample (auc.boot), which represents "an estimation of the apparent performance" (according to the aforementioned reference);
