@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.4.1
+vers 0.5
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
@@ -90,7 +90,7 @@ The function returns two boxplots that represent the training and the testing (i
 
 <br>
 
-`monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages. The extent of the study area can be specified either by entering the geographic coordinates, or on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model). 
+`monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages. The extent of the study area can be specified: (1) by entering the geographic coordinates; (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model); (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html). 
 
 The function saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.
 The function returns a list containing the following data:
@@ -174,6 +174,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.5`: 
+the facility to download wind data on thr basis of country code has been added to the `monthlyWind()` function.
+
 `version 0.4.1`: 
 fix to `description` file.
 
@@ -204,7 +207,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.4.1")
+install_github("gianmarcoalberti/GmAMisc@v0.5")
 ```
 4) load the package: 
 ```r

@@ -1,6 +1,6 @@
 Package: GmAMisc
 Title: Gianmarco Alberti Miscellaneous 
-Version: 0.4.1
+Version: 0.5
 Authors@R: "Gianmarco Alberti <gianmarcoalberti@gmail.com> <gianmarcoalberti@gmail.com>[aut, cre]"
 Description: GmAMisc is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more.
 Depends: R (>= 3.4.0),Hmisc,pROC,kimisc,corrplot,InPosition,lsr,gridExtra,caTools,ggplot2,ggrepel,plyr,classInt,coin,DescTools,rWind,shape,rworldmap,raster

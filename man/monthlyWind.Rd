@@ -4,11 +4,13 @@
 \alias{monthlyWind}
 \title{R function to download month-averaged wind data (from Global Forecast System (GFS) of the USA's National Weather Service (NWS))}
 \usage{
-monthlyWind(raster, year = 2015, month = 1, days = 31, lon1 = NULL,
-  lon2 = NULL, lat1 = NULL, lat2 = NULL)
+monthlyWind(raster, country = NULL, year = 2015, month = 1, days = 31,
+  lon1 = NULL, lon2 = NULL, lat1 = NULL, lat2 = NULL)
 }
 \arguments{
 \item{raster:}{raster dataset representing the study area.}
+
+\item{country:}{code of the country for which monthly wind average has to be calculated.}
 
 \item{year:}{selected year (from 2011 to current); 2015 by default.}
 
@@ -26,7 +28,7 @@ monthlyWind(raster, year = 2015, month = 1, days = 31, lon1 = NULL,
 }
 \description{
 The function allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
-The extent of the study area can be specified either by entering the geographic coordinates, or on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model).
+The extent of the study area can be specified: (1) by entering the geographic coordinates; (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model); (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html).
 The function saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.\cr
 The function returns a list containing the following data:\cr
 -$windMonth: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km)\cr
@@ -35,6 +37,6 @@ The function builds upon the 'wind.dl()' function from Javier Fernández-López'
 }
 \examples{
 res <- monthlyWind(year=2014, month=12, days=31, lon1=-10, lon2=5, lat1=35, lat2=45) #download wind data for Spain region, averaging the values across the 31 days of December 2014
-
+res <- monthlyWind(country="ESP", year=2014, month=12, days=31, lon1=-10, lon2=5, lat1=35, lat2=45) #same as above, but using the country code ESP (=Spain).
 }
 \keyword{wind}
