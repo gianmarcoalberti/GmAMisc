@@ -175,7 +175,7 @@ The x-axis displays the median of the two variables being compared, while the y-
 
 ## History
 `version 0.5`: 
-the facility to download wind data on thr basis of country code has been added to the `monthlyWind()` function.
+the facility to download wind data on the basis of country code has been added to the `monthlyWind()` function.
 
 `version 0.4.1`: 
 fix to `description` file.
