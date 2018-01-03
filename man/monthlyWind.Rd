@@ -18,18 +18,19 @@ monthlyWind(raster, country = NULL, year = 2015, month = 1, days = 31,
 
 \item{days:}{number of days featuring the selected month; 31 by default.}
 
-\item{lon1:}{western longitude. If it is set to NULL (default), it will be derived from the input raster.}
+\item{lon1:}{western longitude. If it is set to NULL (default), it is derived from either the raster or the country parameter.}
 
-\item{lon2:}{eastern longitude. If it is set to NULL (default), it will be derived from the input raster.}
+\item{lon2:}{eastern longitude. If it is set to NULL (default), it is derived from either the raster or the country parameter.}
 
-\item{lat1:}{southern latitude. If it is set to NULL (default), it will be derived from the input raster.}
+\item{lat1:}{southern latitude. If it is set to NULL (default), it is derived from either the raster or the country parameter.}
 
-\item{lat2:}{northern latitude. If it is set to NULL (default), it will be derived from the input raster.}
+\item{lat2:}{northern latitude. If it is set to NULL (default), it is derived from either the raster or the country parameter.}
 }
 \description{
 The function allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
-The extent of the study area can be specified: (1) by entering the geographic coordinates; (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Elevation Model); (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html).
-The function saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.\cr
+The extent of the study area can be specified: (1) by entering the geographic coordinates; (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Terrain Model); (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html).
+Using option (3), the function dowloads a Digital Terrain Model (which is saved in the computer's working directory) for the country of interest, and uses its extent's coordinates as input for the lon1, lon2, lat1, and lat2 parameters. The function internally uses the 'getData()' function from the 'raster' package; see the help documentation of that function (?getData) for more information about the DTM.
+The function also saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.\cr
 The function returns a list containing the following data:\cr
 -$windMonth: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km)\cr
 -$windMonthFit: stores the wind speed and direction for each output grid cell.\cr
