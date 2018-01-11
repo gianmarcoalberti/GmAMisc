@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.5
+vers 0.6
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
@@ -13,12 +13,21 @@ The package comes with some toy datasets:
 
 `radioc_data`: posterior probabilities for the Starting and Ending boundaries of two 14C phases.
 
+`springs`: SpatialPointsDataFrame representing the location of springs in Malta.
+
+`faults`: SpatialLinesDataFrame representing the geological fault-lines in Malta.
+
+`points`: SpatialPointsDataFrame representing fictional locations.
+
+`polygons`: SpatialPolygonsDataFrame representing fictional polygons.
+
 <br>
 
 ## List of implemented functions
 * `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
+* `distRandSign`: function to calculate the significance of the spatial association between two features (points-to-points, points-to-lines, points-to-polygons).
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
 * `modelvalid()`: function for binary Logistic Regression internal validation.
@@ -27,6 +36,7 @@ The package comes with some toy datasets:
 * `outlier`: function for univariate outliers detection.
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
+* `pointsInPolygons()`: function to test points-in-polygons association.
 * `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
 * `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
@@ -58,6 +68,26 @@ The function produces:
 * (1) a chart that displays the permuted distribution of the chi square statistic based on B permuted tables. The selected number of permuted tables, the observed chi square, the 95th percentile of the permuted distribution, and the associated p value are reported at the bottom of the chart; 
 * (2) a chart that displays the bootstrap distribution of Cramer's V coefficient, based on a number of bootstrap replicates which is equal to the value of the function's parameter B; 
 * (3) a chart that the Pearson's Standardized Residuals: a colour scale allows to easily understand which residual is smaller (BLUE) or larger (RED) than expected under the hypothesis of independence. Should the user want to only display residuals larger than a given threshold, it suffices to set the filter parameter to TRUE, and to specify the desidered threshold by means of the thresh parameter, which is set at 1.96 by default.
+
+<br>
+
+`distRandSign`: the function allows to assess if there is a significant spatial association between two features. For instance, users may want to assess if some locations tend to lie close to some features represented by polylines. By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event. See the example provided in the function's help documentation, where the question to address is if there is a spatial association between springs and geological fault-lines; in other words: do springs tend to be located near the geological faults?
+
+Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:
+* keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);
+* for each draw, the average minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;
+* a distribution of average minimum distances is thus obtained;
+* the significance (let's call it p) of the observed average minimum distance is calculated by counting how many randomized average minimum distances are equal or smaller than the observed one, and dividing the count by B. The probability that the observed average minimum distance is equal or larger than the randomized average minimum distance is equal to 1-p.
+
+The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. The random locations are drawn within the convex hull of the logical union of the convex hulls of the from- and of the to-feature.
+
+The function produces a plot representing the distribution of randomized average minimum distances, and a reference line indicating the observed average minimum distance. The p-value is reported at the bottom of the plot.
+A list is also returned, containing what follows:
+* `$from.feat.min.dist`: distance of each entity of the from-feature to the nearest entity of the to-feature;
+* `$avrg.obs.min.dist`: observed average minimum distance;
+* `$avrg.rnd.min.dist`: randomized average minimum distance;
+* `$Prob. of obs. aver. min. dist. <= random. aver. min. dist.`: p value;
+* `$Prob. of obs. aver. min. dist. >= random. aver. min. dist.`: p value.
 
 <br>
 
@@ -137,6 +167,24 @@ The function also returns a list containing the following:
 
 <br>
 
+`pointsInPolygons()`: function to test points-in-polygons association. The function allows to test if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations take into account the convex hull of the logical union of the convex hulls of the point and polygon feature. The convex hull is considered as representing the study plot itself. The computational bases of the function are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php). 
+
+The function makes use of the 'dbinom() and 'pbinom()' functions.
+The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within polygons, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the `area of the polygons` and the `total area of the study plot`.
+The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
+
+The function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself. A list is also returned, containing what follows:
+* `$Polygons' area`;
+* `$Study area's area`;
+* `$Total # of points`;
+* `$Observed # of points in polygons`;
+* `$Expected # of points in polygons`;
+* `$Exact probability of observed count within polygons`;
+* `$Probability of <= observed count within polygons`;
+* `$Probability of >= observed count within polygons`.
+
+<br>
+
 `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters. The function allows plot Posterior Probability Densities with a nice outlook thanks to `ggplot2`. It takes as input a dataframe that must be organized as follows (it is rather easy to do that once the data have been exported from OxCal):
 * calendar dates (first column to the left);
 * posterior probabilities (second column);
@@ -174,6 +222,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.6`: 
+the `distRandSign()` and `pointsInPolygons()` functions have been added, along with the `springs`, `faults`, `points`, and `polygons` datasets.
+
 `version 0.5`: 
 the facility to download wind data on the basis of country code has been added to the `monthlyWind()` function.
 
@@ -207,7 +258,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.5")
+install_github("gianmarcoalberti/GmAMisc@v0.6")
 ```
 4) load the package: 
 ```r
