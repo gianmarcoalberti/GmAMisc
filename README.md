@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.6
+vers 0.7
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
 
@@ -21,6 +21,12 @@ The package comes with some toy datasets:
 
 `polygons`: SpatialPolygonsDataFrame representing fictional polygons.
 
+`events`: SpatialPointsDataFrame representing fictional events.
+
+`locations`: SpatialPointsDataFrame representing fictional locations.
+
+`thiessenpolyg`: SpatialPolygonsDataFrame representing Thiessen polygons around the points represented in the 'locations' dataset.
+
 <br>
 
 ## List of implemented functions
@@ -37,6 +43,7 @@ The package comes with some toy datasets:
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
 * `pointsInPolygons()`: function to test points-in-polygons association.
+* `pointsToPointsTess()`: function to test the distribution of a set of points within the Thiessen tessellation built around points belonging to another feature dataset.
 * `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
 * `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
@@ -167,13 +174,18 @@ The function also returns a list containing the following:
 
 <br>
 
-`pointsInPolygons()`: function to test points-in-polygons association. The function allows to test if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations take into account the convex hull of the logical union of the convex hulls of the point and polygon feature. The convex hull is considered as representing the study plot itself. The computational bases of the function are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php). 
+`pointsInPolygons()`: the function allows to test:
 
-The function makes use of the 'dbinom() and 'pbinom()' functions.
-The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within polygons, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the `area of the polygons` and the `total area of the study plot`.
-The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
+* scenario a: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.
+* scenario b: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.
 
-The function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself. A list is also returned, containing what follows:
+The computational bases of scenario `a` are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).
+The function makes use of the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a polygon, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
+
+The calculations relative to the scenario `b` are again based on the binomial distribution: the probability of the observed counts is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a polygon, `n.of.points` is the total number of points, and `p` is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is `pbinom(x, size=n.of.points, prob=p)`.
+
+For scenario `a` the function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself.
+A list is also returned, containing what follows:
 * `$Polygons' area`;
 * `$Study area's area`;
 * `$Total # of points`;
@@ -182,6 +194,19 @@ The function produces a plot of the points and polygons (plus the convex hull of
 * `$Exact probability of observed count within polygons`;
 * `$Probability of <= observed count within polygons`;
 * `$Probability of >= observed count within polygons`.
+
+For scenario `b` the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated. A matrix is also returned, containing what follows:
+* `polygons' area`;
+* `observed number of points`;
+* `observed number of points`;
+* `expected number of points`;
+* `probability of observed counts`;
+* `probability of observed counts <= than expected`;
+* `probability of observed counts >= than expected`.
+
+<br>
+
+`pointsToPointsTess()`: the function can be considered as a special case of the `scenario b` tested by the `pointsInPolygons()` function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function. The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any point in another feature dataset than expected if the points would be randomly scattered across the study area? To help addressing this question, the function creates Thiessen polygons around the input `to.feature` and then runs the `pointsInPolygons()` function using its `scenario b`. For further details, see the help documentation of the `pointsInPolygons()` function.
 
 <br>
 
@@ -222,6 +247,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.7`: 
+the `pointsInPolygons()` functions has been modified; the function `pointsToPointsTess()` and the `events`, `locations`, and `thiessenpolyg` datasets have been added.
+
 `version 0.6`: 
 the `distRandSign()` and `pointsInPolygons()` functions have been added, along with the `springs`, `faults`, `points`, and `polygons` datasets.
 
@@ -258,7 +286,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.6")
+install_github("gianmarcoalberti/GmAMisc@v0.7")
 ```
 4) load the package: 
 ```r

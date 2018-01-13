@@ -1,18 +1,16 @@
 #' R function to test points-in-polygons association
 #'
-#' The function allows to test if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons.
-#' In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance.
-#' The basic assumption is that the polygons are completely contained within the study plot.
-#' The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.
+#' The function allows to test:\cr
+#' -scenario a: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons.In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot.
+#' The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.\cr
+#' -scenario b: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.\cr
 #'
-#' The computational bases of the function are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).\cr
+#' The computational bases of scenario "a" are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).\cr
+#' The function makes use of the 'dbinom() and 'pbinom()' functions. The probability of observed count within polygons is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within a polygon, 'n.of.points' is the total number of points, and 'p' is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is 'pbinom(x, size=n.of.points, prob=p)'.
 #'
-#'The function makes use of the 'dbinom() and 'pbinom()' functions.\cr
-#'The probability of observed count within polygons is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within polygons, 'n.of.points' is the total number of points, and 'p' is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot.\cr
-#'The probability that x or fewer points will be found within the polygons is 'pbinom(x, size=n.of.points, prob=p)'.
+#' The calculations relative to the scenario "b" are again based on the binomial distribution: the probability of the observed counts is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within a polygon, 'n.of.points' is the total number of points, and 'p' is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is 'pbinom(x, size=n.of.points, prob=p)'.\cr
 #'
-#' The function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself.\cr
-#'
+#' For scenario "a" the function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself.\cr
 #' A list is also returned, containing what follows:\cr
 #' -$Polygons' area;\cr
 #' -$Study area's area;\cr
@@ -22,18 +20,36 @@
 #' -$Exact probability of observed count within polygons;\cr
 #' -$Probability of <= observed count within polygons;\cr
 #' -$Probability of >= observed count within polygons.
+#'
+#' For scenario "b" the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated.\cr
+#' A matrix is also returned, containing what follows:\cr
+#' -polygons' area;\cr
+#' -%area;\cr
+#' -observed number of points;\cr
+#' -observed number of points;\cr
+#' -expected number of points;\cr
+#' -probability of observed counts;\cr
+#' -probability of observed counts <= than expected;\cr
+#' -probability of observed counts >= than expected.\cr
 #' @param point.feat: feature (of point type) whose spatial association with the polygons has to be assessed.
 #' @param polyg.feat: feature (polygon type) in relation to which the spatial association of the points has to be assessed.
+#' @param scenario: select one of the two types of analysis available ("a" or "b").
 #' @param buffer: add a buffer to the convex hull of the study area (0 by default); the unit depends upon the units of the input data.
+#' @param cex.text: modify the size of the labels in the plot produced by the 'scenario b'.
 #' @keywords association
 #' @export
 #' @examples
 #' data(points)
 #' data(polygons)
-#' result <- pointsInPolygons(points, polygons)
+#' result <- pointsInPolygons(points, polygons, scenario="a")
 #'
-pointsInPolygons <- function(point.feat, polyg.feat, buffer=0){
+#' data(events)
+#' data(thiessenpolyg)
+#' result <- pointsInPolygons(events, thiessenpolyg, scenario="b")
+#'
+pointsInPolygons <- function(point.feat, polyg.feat, scenario, buffer=0, cex.text=0.7){
   options(scipen=999)
+  if(scenario=="a"){
   region <- gConvexHull(raster::union(rgeos::gConvexHull(point.feat), rgeos::gConvexHull(polyg.feat)))  #'union()' requires 'raster'; build the convex hull of the union of the convex hulls of the two features
   ch <- rgeos::gBuffer(region, width=buffer)                                                            #add a buffer to the convex hull, with width is set by the 'buffer' parameter; the unit depends upon the units of the input data
   ch.area <- rgeos::gArea(ch)
@@ -50,5 +66,30 @@ pointsInPolygons <- function(point.feat, polyg.feat, buffer=0){
   plot(point.feat, pch=20, col="#00000088", add=TRUE)
   plot(ch, add=TRUE, col=NA, border="red", lty=2)
   results <- list("Polygons' area"=round(sum(bypoly.area),3), "Study area's area"=round(ch.area,3), "Total # of points"=n.of.points, "Observed # of points in polygons"=x , "Expected # of points in polygons" = exp.n.points, "Exact probability of observed count within polygons"=p.x, "Probability of <= observed count within polygons"=p.lessORequal, "Probability of >= observed count within polygons"=p.largerORequal)
-  return(results)
+  return(results) } else {
+    bypoly.area <- rgeos::gArea(polyg.feat, byid = TRUE)
+    perc.area <- bypoly.area / sum(bypoly.area)
+    tot.n.points <- length(point.feat)
+    bypoly.points <- colSums(rgeos::gContains(polyg.feat, point.feat, byid = TRUE))
+    exp.n.points <- tot.n.points * perc.area
+    p.obs <- dbinom(bypoly.points, tot.n.points, perc.area)
+    pLessOrEqual <- pbinom(bypoly.points, tot.n.points, perc.area)
+    pLargerOrEqual <- 1 - pLessOrEqual
+    df <- matrix(nrow=length(polyg.feat), ncol=7)
+    colnames(df)<- c("polygon.area", "%area", "obs.n.points", "exp.n.points", "p.obs", "p.<=exp", "p.>=exp")
+    df[,1] <- bypoly.area
+    df[,2] <- round(perc.area,2)
+    df[,3] <- bypoly.points
+    df[,4] <- round(exp.n.points,2)
+    df[,5] <- round(p.obs,5)
+    df[,6] <- round(pLessOrEqual,5)
+    df[,7] <- round(pLargerOrEqual,5)
+    plot(polyg.feat)
+    plot(point.feat, pch=20, col="#ff000088", add=TRUE)
+    plot(polyg.feat, add=TRUE)
+    p.to.report <- ifelse(p.obs < 0.001, "< 0.001", ifelse(p.obs < 0.01, "< 0.01", ifelse(p.obs < 0.05, "< 0.05", round(p.obs, 3))))
+    labls <- paste0(p.to.report, "\n(obs: ", df[,3],"; exp: ", round(df[,4],2), ")")
+    text(x=coordinates(polyg.feat)[,1], y=coordinates(polyg.feat)[,2], labels=labls, cex=cex.text)
+    return(df)
+    }
 }
