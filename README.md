@@ -176,8 +176,8 @@ The function also returns a list containing the following:
 
 `pointsInPolygons()`: the function allows to test:
 
-* scenario a: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.
-* scenario b: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.
+* `scenario a`: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.
+* `scenario b`: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.
 
 The computational bases of scenario `a` are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).
 The function makes use of the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a polygon, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
@@ -197,7 +197,7 @@ A list is also returned, containing what follows:
 
 For scenario `b` the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated. A matrix is also returned, containing what follows:
 * `polygons' area`;
-* `observed number of points`;
+* `%area`;
 * `observed number of points`;
 * `expected number of points`;
 * `probability of observed counts`;
