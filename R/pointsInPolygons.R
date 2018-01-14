@@ -1,4 +1,4 @@
-#' R function to test points-in-polygons association
+#' R function to test points-in-polygons relationship
 #'
 #' The function allows to test:\cr
 #' -scenario a: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons.In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot.
@@ -24,8 +24,7 @@
 #' For scenario "b" the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated.\cr
 #' A matrix is also returned, containing what follows:\cr
 #' -polygons' area;\cr
-#' -%area;\cr
-#' -observed number of points;\cr
+#' -percentage area (size of each polygon relative to sum of the polygons' area; it corresponds to the probability (p) fed into the binomial distribution function);\cr
 #' -observed number of points;\cr
 #' -expected number of points;\cr
 #' -probability of observed counts;\cr
@@ -35,14 +34,16 @@
 #' @param polyg.feat: feature (polygon type) in relation to which the spatial association of the points has to be assessed.
 #' @param scenario: select one of the two types of analysis available ("a" or "b").
 #' @param buffer: add a buffer to the convex hull of the study area (0 by default); the unit depends upon the units of the input data.
-#' @param cex.text: modify the size of the labels in the plot produced by the 'scenario b'.
+#' @param cex.text: modify the size of the labels in the plot produced by the 'scenario b' option.
 #' @keywords association
 #' @export
 #' @examples
+#' Example 1
 #' data(points)
 #' data(polygons)
 #' result <- pointsInPolygons(points, polygons, scenario="a")
 #'
+#'Example 2
 #' data(events)
 #' data(thiessenpolyg)
 #' result <- pointsInPolygons(events, thiessenpolyg, scenario="b")
@@ -84,7 +85,7 @@ pointsInPolygons <- function(point.feat, polyg.feat, scenario, buffer=0, cex.tex
     df[,5] <- round(p.obs,5)
     df[,6] <- round(pLessOrEqual,5)
     df[,7] <- round(pLargerOrEqual,5)
-    plot(polyg.feat)
+    plot(polyg.feat, main="Points-Polygons relationship", sub="By polygon observed/expected counts, and p-value of obs. counts", cex.main=0.9, cex.sub=0.8)
     plot(point.feat, pch=20, col="#ff000088", add=TRUE)
     plot(polyg.feat, add=TRUE)
     p.to.report <- ifelse(p.obs < 0.001, "< 0.001", ifelse(p.obs < 0.01, "< 0.01", ifelse(p.obs < 0.05, "< 0.05", round(p.obs, 3))))

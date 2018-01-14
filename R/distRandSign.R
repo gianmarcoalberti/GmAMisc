@@ -1,4 +1,4 @@
-#' R function to calculate the significance of the spatial association between two features (points-to-points, points-to-lines, points-to-polygons)
+#' R function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons)
 #'
 #' The function allows to assess if there is a significant spatial association between two features.
 #' For instance, users may want to assess if some locations tend to lie close to some features represented by polylines.

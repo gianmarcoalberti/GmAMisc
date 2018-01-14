@@ -2,7 +2,7 @@
 % Please edit documentation in R/pointsInPolygons.R
 \name{pointsInPolygons}
 \alias{pointsInPolygons}
-\title{R function to test points-in-polygons association}
+\title{R function to test points-in-polygons relationship}
 \usage{
 pointsInPolygons(point.feat, polyg.feat, scenario, buffer = 0,
   cex.text = 0.7)
@@ -16,7 +16,7 @@ pointsInPolygons(point.feat, polyg.feat, scenario, buffer = 0,
 
 \item{buffer:}{add a buffer to the convex hull of the study area (0 by default); the unit depends upon the units of the input data.}
 
-\item{cex.text:}{modify the size of the labels in the plot produced by the 'scenario b'.}
+\item{cex.text:}{modify the size of the labels in the plot produced by the 'scenario b' option.}
 }
 \description{
 The function allows to test:\cr
@@ -44,8 +44,7 @@ A list is also returned, containing what follows:\cr
 For scenario "b" the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated.\cr
 A matrix is also returned, containing what follows:\cr
 -polygons' area;\cr
--%area;\cr
--observed number of points;\cr
+-percentage area (size of each polygon relative to sum of the polygons' area; it corresponds to the probability (p) fed into the binomial distribution function);\cr
 -observed number of points;\cr
 -expected number of points;\cr
 -probability of observed counts;\cr
@@ -53,10 +52,12 @@ A matrix is also returned, containing what follows:\cr
 -probability of observed counts >= than expected.\cr
 }
 \examples{
+Example 1
 data(points)
 data(polygons)
 result <- pointsInPolygons(points, polygons, scenario="a")
 
+Example 2
 data(events)
 data(thiessenpolyg)
 result <- pointsInPolygons(events, thiessenpolyg, scenario="b")

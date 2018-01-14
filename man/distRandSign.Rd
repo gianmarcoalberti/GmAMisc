@@ -2,7 +2,7 @@
 % Please edit documentation in R/distRandSign.R
 \name{distRandSign}
 \alias{distRandSign}
-\title{R function to calculate the significance of the spatial association between two features (points-to-points, points-to-lines, points-to-polygons)}
+\title{R function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons)}
 \usage{
 distRandSign(from.feat, to.feat, buffer = 0, B = 1000, addmap = TRUE)
 }

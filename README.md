@@ -1,7 +1,7 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.7
+vers 0.8
 
-`GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, and more. 
+`GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
 The package comes with some toy datasets:
 
@@ -27,13 +27,17 @@ The package comes with some toy datasets:
 
 `thiessenpolyg`: SpatialPolygonsDataFrame representing Thiessen polygons around the points represented in the 'locations' dataset.
 
+`pumps`: SpatialPointsDataFrame representing the location of public water pumps in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
+
+`deaths`: SpatialPointsDataFrame representing the location of cholera deaths in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
+
 <br>
 
 ## List of implemented functions
 * `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
-* `distRandSign`: function to calculate the significance of the spatial association between two features (points-to-points, points-to-lines, points-to-polygons).
+* `distRandSign`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
 * `modelvalid()`: function for binary Logistic Regression internal validation.
@@ -42,8 +46,8 @@ The package comes with some toy datasets:
 * `outlier`: function for univariate outliers detection.
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
-* `pointsInPolygons()`: function to test points-in-polygons association.
-* `pointsToPointsTess()`: function to test the distribution of a set of points within the Thiessen tessellation built around points belonging to another feature dataset.
+* `pointsInPolygons()`: function to test points-in-polygons relationship.
+* `pointsToPointsTess()`: function to test the relationship of a set of points with the Thiessen tessellation built around points belonging to another feature dataset.
 * `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
 * `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
@@ -197,7 +201,7 @@ A list is also returned, containing what follows:
 
 For scenario `b` the function returns a plot showing the polygons plus the dots; in each polygon the observed and expected counts are reported, and the p-value of the observed count is indicated. A matrix is also returned, containing what follows:
 * `polygons' area`;
-* `%area`;
+* `%area` (size of each polygon relative to sum of the polygons' area; it corresponds to the probability (p) fed into the binomial distribution function);
 * `observed number of points`;
 * `expected number of points`;
 * `probability of observed counts`;
@@ -206,7 +210,7 @@ For scenario `b` the function returns a plot showing the polygons plus the dots;
 
 <br>
 
-`pointsToPointsTess()`: the function can be considered as a special case of the `scenario b` tested by the `pointsInPolygons()` function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function. The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any point in another feature dataset than expected if the points would be randomly scattered across the study area? To help addressing this question, the function creates Thiessen polygons around the input `to.feature` and then runs the `pointsInPolygons()` function using its `scenario b`. For further details, see the help documentation of the `pointsInPolygons()` function.
+`pointsToPointsTess()`: the function can be considered as a special case of the `scenario b` tested by the `pointsInPolygons()` function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function. The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area? To help addressing this question, the function creates Thiessen polygons around the input `to.feature` and then runs the `pointsInPolygons()` function using its `scenario b`. For further details, see the help documentation of the `pointsInPolygons()` function.
 
 <br>
 
@@ -247,6 +251,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.8`: 
+improvements to the `pointsToPointsTess()` function; `pumps` and `deaths` datasets added.
+
 `version 0.7`: 
 the `pointsInPolygons()` functions has been modified; the function `pointsToPointsTess()` and the `events`, `locations`, and `thiessenpolyg` datasets have been added.
 
@@ -286,7 +293,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.7")
+install_github("gianmarcoalberti/GmAMisc@v0.8")
 ```
 4) load the package: 
 ```r

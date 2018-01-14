@@ -2,7 +2,7 @@
 % Please edit documentation in R/PointsToPointsTess.R
 \name{pointsToPointsTess}
 \alias{pointsToPointsTess}
-\title{R function to test the distribution of a set of points within the Thiessen tessellation built around points belonging to another feature dataset}
+\title{R function to test the relationship of a set of points with the Thiessen tessellation built around points belonging to another feature dataset}
 \usage{
 pointsToPointsTess(from.feat, to.feat, cex.text = 0.7)
 }
@@ -14,17 +14,23 @@ pointsToPointsTess(from.feat, to.feat, cex.text = 0.7)
 \item{cex.text:}{modify the size of the labels in the returned plot.}
 }
 \description{
-The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons' function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function.\cr
+The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons()' function provided by this same package, with the exception that in this case the polygons are not entered by the user but are internally created by the function.\cr
 }
 \details{
-The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any point in another feature dataset than expected if the points would be randomly scattered across the study area?
-To help addressing this question, the function creates Thiessen polygons around the input 'to.feature' and then runs the 'pointsInPolygons' function using its 'scenario b'.\cr
-For further details, see the help documentation of the 'pointsInPolygons' function.
+The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area?
+To help addressing this question, the function creates Thiessen polygons around the input 'to.feature' and then runs the 'pointsInPolygons()' function using its 'scenario b'.\cr
+For further details, see the help documentation of the 'pointsInPolygons()' function.
 }
 \examples{
+Example 1
 data(locations)
 data(events)
 result <- pointsToPointsTess(events, locations)
+
+Example 2:
+data(deaths)
+data(pumps)
+result <- pointsToPointsTess(deaths, pumps)
 
 }
 \keyword{association}
