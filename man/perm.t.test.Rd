@@ -22,7 +22,7 @@ The chart returned by the function diplays the distribution of the permuted mean
 Under the chart, a number of information are displayed. In particular, the observed mean difference, the number of permutations used, and the permuted p-value are reported. In the last row, the result of the regular t-test (both assuming and not assuming equal variances) is reported to allow users to compare the outcome of these different versions of the test.
 }
 \examples{
-install(resample) #load the 'resample' package which stores a toy dataset; note: the package must be already installed in R
+library(resample) #load the 'resample' package which stores a toy dataset; note: the package must be already installed in R
 data("Verizon") #load the 'Verizon' dataset
 perm.t.test(Verizon, format="long", B=10000) #performs the permutation-based t-test using 10000 permutations
 

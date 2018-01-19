@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.8
+vers 0.9
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -184,9 +184,9 @@ The function also returns a list containing the following:
 * `scenario b`: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.
 
 The computational bases of scenario `a` are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).
-The function makes use of the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a polygon, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
+The function makes use of the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within polygons, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
 
-The calculations relative to the scenario `b` are again based on the binomial distribution: the probability of the observed counts is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a polygon, `n.of.points` is the total number of points, and `p` is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is `pbinom(x, size=n.of.points, prob=p)`.
+The calculations relative to the scenario `b` are again based on the binomial distribution: the probability of the observed counts is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a given polygon, `n.of.points` is the total number of points, and `p` is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is `pbinom(x, size=n.of.points, prob=p)`.
 
 For scenario `a` the function produces a plot of the points and polygons (plus the convex hull of the study area), and relevant information are reported at the bottom of the chart itself.
 A list is also returned, containing what follows:
@@ -251,6 +251,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.9`: 
+improvements to the help documentation of a numbe of functions; minor inconsistencies fixed.
+
 `version 0.8`: 
 improvements to the `pointsToPointsTess()` function; `pumps` and `deaths` datasets added.
 
@@ -293,7 +296,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.8")
+install_github("gianmarcoalberti/GmAMisc@v0.9")
 ```
 4) load the package: 
 ```r

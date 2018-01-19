@@ -12,7 +12,7 @@
 #' @keywords t-test independent mean comparison permutation
 #' @export
 #' @examples
-#' install(resample) #load the 'resample' package which stores a toy dataset; note: the package must be already installed in R
+#' library(resample) #load the 'resample' package which stores a toy dataset; note: the package must be already installed in R
 #' data("Verizon") #load the 'Verizon' dataset
 #' perm.t.test(Verizon, format="long", B=10000) #performs the permutation-based t-test using 10000 permutations
 #'
