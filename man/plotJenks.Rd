@@ -19,6 +19,8 @@ plotJenks(data, n = 3, brks.cex = 0.7, top.margin = 10, dist = 5)
 }
 \description{
 The function  allows to break a dataset down into a user-defined number of breaks and to nicely plot the results, adding a number of other relevant information. Implementing the Jenks' natural breaks method, it allows to find the best arrangement of values into different classes.\cr
+}
+\details{
 The function produces a chart in which the values of the input variable are arranged on the x-axis in ascending order, while the index of the individual observations is reported on the y-axis. Vertical dotted red lines correspond to the optimal break-points which best divide the input variable into the selected classes. The break-points (and their values) are reported in the upper part of the chart, onto the corresponding break lines. Also, the chart's subtitle reports the Goodness of Fit value relative to the selected partition, and the partition which correspond to the maximum GoF value.\cr
 The function also returns a list containing the following:\cr
 -$info: information about whether or not the method created non-unique breaks;\cr

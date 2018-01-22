@@ -1,10 +1,13 @@
 #' R function for Brainerd-Robinson simiarity coefficient
 #'
 #' The function allows to calculate the Brainerd-Robinson similarity coefficient, taking as input a cross-tabulation (dataframe).\cr
-#' The command will return:\cr
+#'
+#' The function returns:\cr
 #' a) a correlation matrix in tabular form;\cr
 #' b) a heat-map representing, in a graphical form, the aforementioned correlation matrix.\cr
+#'
 #' In the heat-map (which is built using the 'corrplot' package), the size and the color of the squares are proportional to the Brainerd-Robinson coefficients, which are also reported by numbers.\cr
+#'
 #' In order to "penalize" BR similarity coefficient(s) arising from assemblages with unshared categories, the function does what follows: it divides the BR coefficient(s) by the number of unshared categories plus 0.5. The latter addition is simply a means to be still able to penalize coefficient(s) arising from assemblages having just one unshared category. Also note that joint absences will have no weight on the penalization of the coefficient(s). In case of assemblages sharing all their categories, the corrected coefficient(s) turns out to be equal to the uncorrected one.
 #' @param data: dataframe containing the dataset (note: assemblages in rows, variables in columns).
 #' @param which: takes "rows" (default) if the user wants the coefficients be calculated for the row categories, "cols" if the users wants the coefficients be calculated for the column categories.

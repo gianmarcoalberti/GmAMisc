@@ -14,7 +14,7 @@ pointsToPointsTess(from.feat, to.feat, cex.text = 0.7)
 \item{cex.text:}{modify the size of the labels in the returned plot.}
 }
 \description{
-The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons()' function provided by this same package, with the exception that in this case the polygons are not entered by the user but are internally created by the function.\cr
+The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons()' function provided by this same package, with the exception that in this case the polygons are not entered by the user but are internally created by the function around the to-feature.\cr
 }
 \details{
 The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area?

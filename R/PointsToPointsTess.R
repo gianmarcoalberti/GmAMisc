@@ -1,6 +1,6 @@
 #' R function to test the relationship of a set of points with the Thiessen tessellation built around points belonging to another feature dataset
 #'
-#' The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons()' function provided by this same package, with the exception that in this case the polygons are not entered by the user but are internally created by the function.\cr
+#' The function can be considered as a special case of the scenario "b" tested by the 'pointsInPolygons()' function provided by this same package, with the exception that in this case the polygons are not entered by the user but are internally created by the function around the to-feature.\cr
 #'
 #' The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area?
 #' To help addressing this question, the function creates Thiessen polygons around the input 'to.feature' and then runs the 'pointsInPolygons()' function using its 'scenario b'.\cr

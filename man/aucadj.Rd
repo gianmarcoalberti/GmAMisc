@@ -15,9 +15,12 @@ aucadj(data, fit, B)
 }
 \description{
 The function allows to calculate the AUC of a (binary) Logistic Regression model, adjusted for optimism.\cr
-The function performs an internal validation of a model via a bootstrap procedure (devised by Harrell and colleagues), which enables to estimate the degree of optimism of a fitted model and the extent to which the model will be able to generalize outside the training dataset.\cr
-If you want more info, you can refer to this website (http://thestatsgeek.com/2014/10/04/adjusting-for-optimismoverfitting-in-measures-of-predictive-ability-using-bootstrapping/), and/or read the following interesting article (in which the bootstrap procedure is described at page 776):\cr
+}
+\details{
+The function performs an internal validation of a model via a bootstrap procedure (devised by Harrell and colleagues), which enables to estimate the degree of optimism of a fitted model and the extent to which the model will be able to generalize outside the training dataset.
+If you want more info, you can refer to this website (http://thestatsgeek.com/2014/10/04/adjusting-for-optimismoverfitting-in-measures-of-predictive-ability-using-bootstrapping/), and/or read the following interesting article (in which the bootstrap procedure is described at page 776):
 http://thestatsgeek.com/2014/10/04/adjusting-for-optimismoverfitting-in-measures-of-predictive-ability-using-bootstrapping/\cr
+
 The returned boxplots represent:\cr
 -the distribution of the AUC value in the bootstrap sample (auc.boot), which represents "an estimation of the apparent performance" (according to the aforementioned reference);\cr
 -the distribution of the AUC value deriving from the model fitted to the bootstrap samples and evaluated on the original sample (auc.orig), which represents the model performance on independent data.\cr

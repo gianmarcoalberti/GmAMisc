@@ -16,10 +16,13 @@ modelvalid(data, fit, B)
 \description{
 The function allows to perform internal validation of a binary Logistic Regression model, implementing part of the procedure described in
 Arboretti Giancristofaro R, Salmaso L. "Model performance analysis and model validation in logistic regression". Statistica 2003(63): 375–396.\cr
+}
+\details{
 The procedure consists of the following steps:\cr
 (1) the whole dataset is split into two random parts, a fitting (75 percent) and a validation (25 percent) portion;\cr
 (2) the model is fitted on the fitting portion (i.e., its coefficients are computed considering only the observations in that portion) and its performance is evaluated on both the fitting and the validation portion, using AUC as performance measure;\cr
 (3) steps 1-2 are repeated B times, eventually getting a fitting and validation distribution of the AUC values. The former provides an estimate of the performance of the model in the population of all the theoretical training samples; the latter represents an estimate of the model’s performance on new and independent data.\cr
+
 The function returns two boxplots that represent the training and the testing (i.e., validation) distribution of the AUC value across the 1000 iterations. For an example of the interpretation of the chart, see the aforementioned article, especially page 390-91.
 }
 \examples{

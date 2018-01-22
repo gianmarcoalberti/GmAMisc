@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.9
+vers 0.10
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -31,6 +31,8 @@ The package comes with some toy datasets:
 
 `deaths`: SpatialPointsDataFrame representing the location of cholera deaths in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
 
+`rndpoints`: SpatialPointsDataFrame representing the random locations.
+
 <br>
 
 ## List of implemented functions
@@ -43,6 +45,7 @@ The package comes with some toy datasets:
 * `modelvalid()`: function for binary Logistic Regression internal validation.
 * `monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
 * `mwPlot()`: function for visually displaying Mann-Whitney test's results.
+* `NNa()`: function for Nearest Neighbor analysis of point patterns.
 * `outlier`: function for univariate outliers detection.
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
@@ -90,7 +93,7 @@ Given a from-feature (event for which we want to estimate the spatial associatio
 * a distribution of average minimum distances is thus obtained;
 * the significance (let's call it p) of the observed average minimum distance is calculated by counting how many randomized average minimum distances are equal or smaller than the observed one, and dividing the count by B. The probability that the observed average minimum distance is equal or larger than the randomized average minimum distance is equal to 1-p.
 
-The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. The random locations are drawn within the convex hull of the logical union of the convex hulls of the from- and of the to-feature.
+The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. If the study plot shapefile is not provided, the random locations are drawn within the convex hull of the logical union of the convex hulls of the from- and of the to-feature.
 
 The function produces a plot representing the distribution of randomized average minimum distances, and a reference line indicating the observed average minimum distance. The p-value is reported at the bottom of the plot.
 A list is also returned, containing what follows:
@@ -151,6 +154,20 @@ The function may also return a density plot (coupled with a rug plot at the bott
 
 <br>
 
+`NNa()`: function for Nearest Neighbor analysis of point patterns. The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of clustering, overdispersion, or random spatial arrangement. Significance assessed via a randomized approach.
+
+The function uses a randomized approach to test the significance of the Nearest Neighbor distance: the observed average NN distance is compared against the distribution of average NN distances computed across B iterations. In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn.
+
+The function produces a density chart of the randomized average NN distances, with a reference line indicating the observed average NN and a black dot representing the average of the randomized NN distances. P-values are reported at the bottom of the same chart. The two tails of the randomized distribution are given a red (left tail, indicating the area of significant clustering) and a blue color (right tail, indicating the area of significant overdispersion).
+
+The function also returns a list storing the following:
+* `$obs.aver.NN.dist`
+* `$rnd.aver.NN.dist`
+* `Prob. of obs. aver. NN dist. <= random. aver. NN dist.`
+* `Prob. of obs. aver. NN dist. >= random. aver. NN dist.`
+
+<br>
+
 `outlier`: function for univariate outliers detection. The function allows to perform univariate outliers detection using three different methods. These methods are those described in: Wilcox R R, *Fundamentals of Modern Statistical Methods: Substantially Improving Power and Accuracy*, Springer 2010 (2nd edition), pages 31-35.
 Two of the three methods are robust, and are therefore less prone to the masking effect.
 * (1) With the mean-based method, an observation is considered outlier if the absolute difference between that observation and the sample mean is more than 2 Standard Deviations away (in either direction) from the mean. In the plot returned by the function, the central reference line is indicating the mean value, while the other two are set at `mean-2*SD and mean+2*SD`.
@@ -180,11 +197,10 @@ The function also returns a list containing the following:
 
 `pointsInPolygons()`: the function allows to test:
 
-* `scenario a`: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. The calculations are based on the bounding polygon based on the union the convex hulls of the point and of the polygon feature. The bounding polygon is considered as representing the study plot itself.
+* `scenario a`: if there is a significant spatial association between a set of points and a set of polygons, in terms of points falling within the polygons. In other words, it aims at testing whether a set of points falls inside a set of polygons more often than would be expected by chance. The basic assumption is that the polygons are completely contained within the study plot. If the shapefile (of polygon type) representing the study plot is not provided, the calculations use the bounding polygon based on the union the convex hulls of the point and of the polygon feature.
 * `scenario b`: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.
 
-The computational bases of scenario `a` are described in the help documentation of the 'Point-Polygon Relationship' analysis facility provided by the PASSaGE software (http://www.passagesoftware.net/manual.php).
-The function makes use of the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within polygons, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
+The computations relative to scenario `a` are based on the `dbinom()` and `pbinom()` functions. The probability of observed count within polygons is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within polygons, `n.of.points` is the total number of points, and `p` is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is `pbinom(x, size=n.of.points, prob=p)`.
 
 The calculations relative to the scenario `b` are again based on the binomial distribution: the probability of the observed counts is `dbinom(x, size=n.of.points, prob=p)`, where `x` is the observed number of points within a given polygon, `n.of.points` is the total number of points, and `p` is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is `pbinom(x, size=n.of.points, prob=p)`.
 
@@ -210,7 +226,7 @@ For scenario `b` the function returns a plot showing the polygons plus the dots;
 
 <br>
 
-`pointsToPointsTess()`: the function can be considered as a special case of the `scenario b` tested by the `pointsInPolygons()` function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function. The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area? To help addressing this question, the function creates Thiessen polygons around the input `to.feature` and then runs the `pointsInPolygons()` function using its `scenario b`. For further details, see the help documentation of the `pointsInPolygons()` function.
+`pointsToPointsTess()`: the function can be considered as a special case of the `scenario b` tested by the `pointsInPolygons()` function provided by this same package, with the exception that in this case the polygons are not entered by the use but are internally created by the function aorund the to-feature. The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area? To help addressing this question, the function creates Thiessen polygons around the input `to.feature` and then runs the `pointsInPolygons()` function using its `scenario b`. For further details, see the help documentation of the `pointsInPolygons()` function.
 
 <br>
 
@@ -251,6 +267,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.10`: 
+`distRandSign()` and `pointsInPolygons()` now accept a shapefile (of polygon type) representing the study plot; dot (representing the mean value) added to the density chart returned by the `distRandSign()` function. The `NNa()` function has been added. Progression bar added to a number of functions. Improvements to the functions' help documentation.
+
 `version 0.9`: 
 improvements to the help documentation of a numbe of functions; minor inconsistencies fixed.
 
@@ -296,7 +315,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.9")
+install_github("gianmarcoalberti/GmAMisc@v0.10")
 ```
 4) load the package: 
 ```r

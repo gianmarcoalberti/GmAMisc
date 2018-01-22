@@ -1,7 +1,8 @@
 #' R function to plot a robust version of the Bland-Altman plot
 #'
 #' The function allows to plot a robust version of the Bland-Altman plot.\cr
-#' It returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. "Fundamentals of modern statistical methods: Substantially improving power and accuracy". New York: Springer) instead of mean and standard deviation.\cr
+#'
+#' The function returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. "Fundamentals of modern statistical methods: Substantially improving power and accuracy". New York: Springer) instead of mean and standard deviation.\cr
 #' The x-axis displays the median of the two variables being compared, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus z*(MAD/0.6745).
 #' @param a: vector storing the first set of measurements to be compared.
 #' @param b: vector storing the second set of measurements to be compared.

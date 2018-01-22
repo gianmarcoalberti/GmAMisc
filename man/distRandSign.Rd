@@ -4,12 +4,15 @@
 \alias{distRandSign}
 \title{R function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons)}
 \usage{
-distRandSign(from.feat, to.feat, buffer = 0, B = 1000, addmap = TRUE)
+distRandSign(from.feat, to.feat, studyplot = NULL, buffer = 0, B = 1000,
+  addmap = TRUE)
 }
 \arguments{
 \item{from.feat:}{feature (of point type) whose spatial association with the to-feature has to be assessed.}
 
 \item{to.feat:}{feature (point, polyline, or polygon type) in relation to which the spatial association of the from-feature has to be assessed.}
+
+\item{studyplot:}{shapefile (of polygon type) representing the study area; if not provided, the study area is internally worked out as the bounding polygon based on the union the convex hulls of the from- and of the to-feature.}
 
 \item{buffer:}{add a buffer to the convex hull of the study area (0 by default); the unit depends upon the units of the input data.}
 
@@ -31,9 +34,9 @@ Given a from-feature (event for which we want to estimate the spatial associatio
 -the significance (let's call it p) of the observed average minimum distance is calculated by counting how many randomized average minimum distances are equal or smaller than the observed one, and dividing the count by B. The probability that the observed average minimum distance is equal or larger than the randomized average minimum distance is equal to 1-p.\cr
 
 The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features.
-The random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.\cr
+If the study plot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.\cr
 
-The function produces a plot representing the distribution of randomized average minimum distances, and a reference line indicating the observed average minimum distance. The p-values are reported at the bottom of the plot.\cr
+The function produces a plot representing: the distribution of randomized average minimum distances; a reference line indicating the observed average minimum distance; a black dot representing the average of the randomized minimum distances. P-values are reported at the bottom of the plot.\cr
 
 A list is also returned, containing what follows:\cr
 -$from.feat.min.dist: distance of each entity of the from-feature to the nearest entity of the to-feature;\cr
@@ -52,17 +55,6 @@ Example 2:
 data(points)
 data(polygons)
 result <- distRandSign(from.feat=points, to.feat=polygons, addmap=FALSE) #calculate the significance of the spatial association between points and polygons, but do not return the map.
-
-Example 3:
-build two sets of spatially correlated points and then run the distRandSign() function
-n <- 100
-m <- 50
-set.seed(17)
-a <- matrix(rnorm(2*n), ncol=2)
-b <- matrix(rnorm(2*m, a[1:m, ], sd=1/5), ncol=2)
-a.loc <- SpatialPoints(a)
-b.loc <- SpatialPoints(b)
-result <- distRandSign(a.loc,b.loc, 500, addmap=TRUE) #calculate the points-to-points spatial association using 500 randomizations, and also returns the map
 
 }
 \keyword{distance}

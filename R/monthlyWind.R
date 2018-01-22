@@ -1,12 +1,19 @@
 #' R function to download month-averaged wind data (from Global Forecast System (GFS) of the USA's National Weather Service (NWS))
 #'
 #' The function allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
-#' The extent of the study area can be specified: (1) by entering the geographic coordinates; (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Terrain Model); (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html).
+#'
+#' The extent of the study area can be specified:\cr
+#' (1) by entering the geographic coordinates;\cr
+#' (2) on the basis of an input raster dataset representing the study area itself (for instance, a Digital Terrain Model);\cr
+#' (3) using a country code (for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html).
+#'
 #' Using option (3), the function dowloads a Digital Terrain Model (which is saved in the computer's working directory) for the country of interest, and uses its extent's coordinates as input for the lon1, lon2, lat1, and lat2 parameters. The function internally uses the 'getData()' function from the 'raster' package; see the help documentation of that function (?getData) for more information about the DTM.
 #' The function also saves two .geotiff files in the computer's working directory, one representing the wind speed, the other the wind direction. In both cases, the values are the average of the wind speed and direction values in the study area across the days of the selected month, in the selected year. A plot is also returned in the R console.\cr
+#'
 #' The function returns a list containing the following data:\cr
 #' -$windMonth: stores the U and V components for each output grid cell (spatial resolution 0.5 degrees=50 Km)\cr
 #' -$windMonthFit: stores the wind speed and direction for each output grid cell.\cr
+#'
 #' The function builds upon the 'wind.dl()' function from Javier Fernández-López's package 'rWind'. The help provided by Dr Fernández-López in creating an earlier version of the 'monthlyWind()' function is gratefully acknowledged.
 #' @param raster: raster dataset representing the study area.
 #' @param country: code of the country for which monthly wind average has to be calculated.
@@ -50,14 +57,16 @@ monthlyWind <- function(raster, country=NULL, year=2015, month=01, days=31, lon1
 
   #create a loop into a loop; the internal loop will store daily data (one per "time") in a "wind_day" list, and will perform the daily mean.
   #the external loop will store each daily mean in a "wind_serie" list.
+  pb_days <- txtProgressBar(min = 0, max = days, style = 3)                                    #set the progress bar to be used inside the loop
   for (d in 1:days){
     wind_day <- list()
     for (t in 1:8){
       w <- wind.dl(year,month,d,times[t],lon1,lon2,lat1,lat2)
       wind_day[[t]] <- w
-    }
+      }
     wd <- wind.mean(wind_day)
     wind_serie[[d]] <- wd
+    setTxtProgressBar(pb_days, d)
   }
 
   #finally, you can compute month average with wind.mean:

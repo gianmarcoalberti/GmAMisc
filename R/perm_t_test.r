@@ -1,9 +1,12 @@
 #' R function for permutation-based t-test
 #'
 #' The function allows to perform a permutation-based t-test to compare two independent groups. The test's results are graphically displayed within the returned chart.
+#'
 #' A permutation t-test proves useful when the assumption of 'regular' t-test are not met. In particular, when the two groups being compared show a very skewed distribution, and when the sample sizes are very unbalanced.\cr
+#'
 #' "The permutation test is useful even if we plan to use the two-sample t test. Rather than relying on Normal quantile plots of the two samples and the central limit theorem, we can directly check the Normality of the sampling distribution by looking at the permutation distribution.
 #' Permutation tests provide a “gold standard” for assessing two-sample t tests. If the two P-values differ considerably, it usually indicates that the conditions for the two-sample t don’t hold for these data. Because permutation tests give accurate P-values even when the sampling distribution is skewed, they are often used when accuracy is very important." (Moore, McCabe, Craig, "Introduction to the Practice of Statistics", New York: W. H. Freeman and Company, 2009).\cr
+#'
 #' The chart returned by the function diplays the distribution of the permuted mean difference between the two samples; a dashed line indicates the observed mean difference. A rug plot at the bottom of the density curve indicates the individual permuted mean differences.
 #' Under the chart, a number of information are displayed. In particular, the observed mean difference, the number of permutations used, and the permuted p-value are reported. In the last row, the result of the regular t-test (both assuming and not assuming equal variances) is reported to allow users to compare the outcome of these different versions of the test.
 #' @param data: dataframe containing the data.
@@ -49,11 +52,13 @@ perm.t.test <- function (data,format,B=1000){
   nIter <- B
   meanDiff <- numeric(nIter+1)
   meanDiff[1] <- round(mean1 - mean2, digits=2)
+  pb <- txtProgressBar(min = 0, max = B, style = 3)                                    #set the progress bar to be used inside the loop
   for(i in 2:length(meanDiff)){
     index <- sample(1:size.pooled, size=size.sample1, replace=F)
     sample1.perm <- pooledData[index]
     sample2.perm <- pooledData[-index]
     meanDiff[i] <- mean(sample1.perm) - mean(sample2.perm)
+    setTxtProgressBar(pb, i)
   }
   p.value <- round(mean(abs(meanDiff) >= abs(meanDiff[1])), digits=4)
   plot(density(meanDiff), main="Distribution of permuted mean differences", xlab="", sub=paste0("sample 1 (n: ", n1,") (95% CI lower bound., mean, 95% CI upper bound.): ", sample1_lci, ", ", mean1, ", ", sample1_uci, "\nsample 2 (n: ", n2,") (95% CI lower bound., mean, 95% CI upper bound.): ", sample2_lci, ", ", mean2, ", ", sample2_uci,"\nobserved mean difference (dashed line): ", meanDiff[1],"; permuted p.value (2-sided): ", p.value, " (number of permutations: ",B,")\nregular t-test p-values (2-sided): ",p.equal.var," (equal variance); ",p.unequal.var, " (unequal variance)"), cex.sub=0.78)
