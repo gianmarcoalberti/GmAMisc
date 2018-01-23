@@ -1,10 +1,14 @@
 #' R function for permutation-based chi-square test of independence
 #'
 #' The function performs the chi-square test of independence on the basis of permuted tables, whose number is selected by user.\cr
+#'
 #' For the rationale of this approach, see for instance the nice description provided by Beh E.J., Lombardo R. 2014, Correspondence Analysis: Theory, Practice and New Strategies, Chichester, Wiley, pages 62-64.\cr
+#'
 #' The function produces:\cr
-#' (1) a chart that displays the permuted distribution of the chi square statistic based on B permuted tables. The selected number of permuted tables, the observed chi square, the 95th percentile of the permuted distribution, and the associated p value are reported at the bottom of the chart;
-#' (2) a chart that displays the bootstrap distribution of Cramer's V coefficient, based on a number of bootstrap replicates which is equal to the value of the function's parameter B;
+#' (1) a chart that displays the permuted distribution of the chi square statistic based on B permuted tables. The selected number of permuted tables, the observed chi square, the 95th percentile of the permuted distribution, and the associated p value are reported at the bottom of the chart;\cr
+#'
+#' (2) a chart that displays the bootstrap distribution of Cramer's V coefficient, based on a number of bootstrap replicates which is equal to the value of the function's parameter B;\cr
+#'
 #' (3) a chart that the Pearson's Standardized Residuals: a colour scale allows to easily understand which residual is smaller (BLUE) or larger (RED) than expected under the hypothesis of independence. Should the user want to only display residuals larger than a given threshold, it suffices to set the filter parameter to TRUE, and to specify the desidered threshold by means of the thresh parameter, which is set at 1.96 by default.
 #' @param data: dataframe containing the input contingency table.
 #' @param B: desired number of permuted tables (1000 by default).
@@ -28,8 +32,12 @@ chiperm <- function(data, B=1000, resid=FALSE, filter=FALSE, thresh=1.96, cramer
   perm.p.value <- length(chi.values[chi.values > chi.values[1]])/B
   p.to.report <- ifelse(perm.p.value < 0.001, "< 0.001", ifelse(perm.p.value < 0.01, "< 0.01", ifelse(perm.p.value < 0.05, "< 0.05",round(perm.p.value, 3))))
   d <- density(chi.values)
-  plot(d, main="Chi square statistic Permuted Distribution", sub=paste0("\nNumber of permutations: ", B, "\nSolid line: observed chi-sq (", round(chi.values[1], 3), ")","\nDashed line: 95th percentile of the permuted chi-sq (=alpha 0.05 threshold) (", round(quantile(chi.values, c(0.95)),3), ")", "\np value: ", p.to.report), xlab = "", cex.sub=0.8)
-  polygon(d, col = "red", border = "blue")
+  plot(d, main="Chi square statistic Permuted Distribution",
+       sub=paste0("\nSolid line: observed chi-sq (", round(chi.values[1], 3), ")","\nDashed line: 95th percentile of the permuted chi-sq (=alpha 0.05 threshold) (", round(quantile(chi.values, c(0.95)),3), ")", "\np value: ", p.to.report, " (n. of permutations: ", B,")"),
+       xlab = "",
+       cex.sub=0.8)
+  polygon(d, col = "#BCD2EE88", border = "blue")
+  rug(chi.values, col = "#0000FF")
   abline(v = chi.values[1])
   abline(v = round(quantile(chi.values, c(0.95)), 5), lty = 2, col = "blue")
   if (resid==TRUE) {
@@ -48,8 +56,9 @@ chiperm <- function(data, B=1000, resid=FALSE, filter=FALSE, thresh=1.96, cramer
     d.cramer <- density(cramerv)
     perc5 <- quantile(cramerv, c(0.05))
     perc95 <- quantile(cramerv, c(0.95))
-    plot(d.cramer, xlab="", main="Cramer's V Bootstrap Distribution", sub=paste0("\nNumber of bootstrap replicates: ", B, "\nCramer's V: ", round(cramerv[1], 3), "\nDashed lines: 5th and 95th percentile", "\n95% Condifence Interval: ", round(perc5, 3), "-", round(perc95, 3)), cex.sub=0.8)
+    plot(d.cramer, xlab="", main="Cramer's V Bootstrap Distribution", sub=paste0("\nCramer's V: ", round(cramerv[1], 3), "\nDashed lines: 5th and 95th percentile", "\n95% Condifence Interval: ", round(perc5, 3), "-", round(perc95, 3), " (n. of bootstrap replicates: ",B,")"), cex.sub=0.8)
     polygon(d.cramer, col = "blue", border = "red")
+    rug(cramerv, col = "#0000FF")
     abline(v = perc5, lty = 2, col = "red")
     abline(v = perc95, lty = 2, col = "red")
   } else {

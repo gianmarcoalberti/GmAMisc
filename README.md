@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.10
+vers 0.11
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -267,6 +267,9 @@ The x-axis displays the median of the two variables being compared, while the y-
 <br>
 
 ## History
+`version 0.11`: 
+improvements and typos fixes to the help documentation; improvements to the output charts of the `chiperm()` function.
+
 `version 0.10`: 
 `distRandSign()` and `pointsInPolygons()` now accept a shapefile (of polygon type) representing the study plot; dot (representing the mean value) added to the density chart returned by the `distRandSign()` function. The `NNa()` function has been added. Progression bar added to a number of functions. Improvements to the functions' help documentation.
 
@@ -315,7 +318,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.10")
+install_github("gianmarcoalberti/GmAMisc@v0.11")
 ```
 4) load the package: 
 ```r
