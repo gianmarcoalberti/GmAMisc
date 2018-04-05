@@ -5,11 +5,15 @@
 #' If the shapefile (of polygon type) representing the study plot is not provided, the calculations use the bounding polygon based on the union the convex hulls of the point and of the polygon feature.\cr
 #' -scenario b: if the distribution of points within a set of polygons totally covering the study area can be considered random, or if the observed points count for each polygon is larger or smaller than expected. P values are also reported.\cr
 #'
-#' The computations relative to scenario "a" are based on the 'dbinom() and 'pbinom()' functions. The probability of observed count within polygons is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within polygons, 'n.of.points' is the total number of points, and 'p' is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot. The probability that x or fewer points will be found within the polygons is 'pbinom(x, size=n.of.points, prob=p)'.
+#' The computations relative to scenario "a" are based on the 'dbinom() and 'pbinom()' functions.
+#' The probability of observed count within polygons is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within polygons, 'n.of.points' is the total number of points, and 'p' is the probability that a single point will be found within a polygon, which is equal to the ratio between the area of the polygons and the total area of the study plot.
+#' The probability that x or fewer points will be found within the polygons is 'pbinom(x, size=n.of.points, prob=p)'.
 #'
-#' The calculations relative to the scenario "b" are again based on the binomial distribution: the probability of the observed counts is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within a given polygon, 'n.of.points' is the total number of points, and 'p' is equal to the size of each polygon relative to sum of the polygons' area. The probability that x or fewer points will be found within a given polygon is 'pbinom(x, size=n.of.points, prob=p)'.\cr
+#' The calculations relative to the scenario "b" are again based on the binomial distribution:
+#' the probability of the observed counts is 'dbinom(x, size=n.of.points, prob=p)', where 'x' is the observed number of points within a given polygon, 'n.of.points' is the total number of points, and 'p' is equal to the size of each polygon relative to sum of the polygons' area.
+#' The probability that x or fewer points will be found within a given polygon is 'pbinom(x, size=n.of.points, prob=p)'.\cr
 #'
-#' For scenario "a" the function produces a plot of the points and polygons (plus  the study area), and relevant information are reported at the bottom of the chart itself.\cr
+#' For scenario "a" the function produces a plot of the points and polygons (plus the study area), and relevant information are reported at the bottom of the chart itself.\cr
 #' A list is also returned, containing what follows:\cr
 #' -$Polygons' area;\cr
 #' -$Study area's area;\cr
@@ -29,9 +33,9 @@
 #' -probability of observed counts;\cr
 #' -probability of observed counts <= than expected;\cr
 #' -probability of observed counts >= than expected.\cr
-#' @param point.feat: feature (of point type) whose spatial association with the polygons has to be assessed.
-#' @param polyg.feat: feature (polygon type) in relation to which the spatial association of the points has to be assessed.
-#' @param studyplot: shapefile (of polygon type) representing the study area; if not provided, the study area is internally worked out as the bounding polygon based on the union the convex hulls of the point and of the polygon feature.
+#' @param point.feat: feature (of point type; SpatialPointsDataFrame class) whose spatial association with the polygons has to be assessed.
+#' @param polyg.feat: feature (polygon type; SpatialPolygonsDataFrame) in relation to which the spatial association of the points has to be assessed.
+#' @param studyplot: shapefile (of polygon type; SpatialPolygonsDataFrame) representing the study area; if not provided, the study area is internally worked out as the bounding polygon based on the union the convex hulls of the point and of the polygon feature.
 #' @param scenario: select one of the two types of analysis available ("a" or "b").
 #' @param buffer: add a buffer to the convex hull of the study area (0 by default); the unit depends upon the units of the input data.
 #' @param cex.text: modify the size of the labels in the plot produced by the 'scenario b' option.
@@ -47,6 +51,7 @@
 #' data(events)
 #' data(thiessenpolyg)
 #' result <- pointsInPolygons(events, thiessenpolyg, scenario="b")
+#' @seealso \code{\link{PointsToPointsTess}}
 #'
 pointsInPolygons <- function(point.feat, polyg.feat, studyplot=NULL, scenario, buffer=0, cex.text=0.7){
   options(scipen=999)

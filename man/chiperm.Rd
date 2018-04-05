@@ -4,13 +4,13 @@
 \alias{chiperm}
 \title{R function for permutation-based chi-square test of independence}
 \usage{
-chiperm(data, B = 1000, resid = FALSE, filter = FALSE, thresh = 1.96,
+chiperm(data, B = 999, resid = FALSE, filter = FALSE, thresh = 1.96,
   cramer = FALSE)
 }
 \arguments{
 \item{data:}{dataframe containing the input contingency table.}
 
-\item{B:}{desired number of permuted tables (1000 by default).}
+\item{B:}{desired number of permuted tables (999 by default).}
 
 \item{resid:}{TRUE or FALSE (default) if the user does or doesn't want to plot the table of Pearson's standardized residuals.}
 

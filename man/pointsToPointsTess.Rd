@@ -7,9 +7,9 @@
 pointsToPointsTess(from.feat, to.feat, cex.text = 0.7)
 }
 \arguments{
-\item{from.feat:}{feature (of point type) whose spatial association with to-feature has to be assessed.}
+\item{from.feat:}{feature (of point type; SpatialPointsDataFrame) whose spatial association with to-feature has to be assessed.}
 
-\item{to.feat:}{feature (of point type) in relation to which the spatial association of the from-feature has to be assessed.}
+\item{to.feat:}{feature (of point type; SpatialPointsDataFrame) in relation to which the spatial association of the from-feature has to be assessed.}
 
 \item{cex.text:}{modify the size of the labels in the returned plot.}
 }
@@ -31,6 +31,8 @@ Example 2:
 data(deaths)
 data(pumps)
 result <- pointsToPointsTess(deaths, pumps)
-
+}
+\seealso{
+\code{\link{pointsInPolygons}}
 }
 \keyword{association}

@@ -5,8 +5,8 @@
 #' The question this function may allow to address is: do the points belonging to a feature dataset tend to occur close to any of the points in another feature dataset than expected if the points would be randomly scattered across the study area?
 #' To help addressing this question, the function creates Thiessen polygons around the input 'to.feature' and then runs the 'pointsInPolygons()' function using its 'scenario b'.\cr
 #' For further details, see the help documentation of the 'pointsInPolygons()' function.
-#' @param from.feat: feature (of point type) whose spatial association with to-feature has to be assessed.
-#' @param to.feat: feature (of point type) in relation to which the spatial association of the from-feature has to be assessed.
+#' @param from.feat: feature (of point type; SpatialPointsDataFrame) whose spatial association with to-feature has to be assessed.
+#' @param to.feat: feature (of point type; SpatialPointsDataFrame) in relation to which the spatial association of the from-feature has to be assessed.
 #' @param cex.text: modify the size of the labels in the returned plot.
 #' @keywords association
 #' @export
@@ -20,6 +20,7 @@
 #' data(deaths)
 #' data(pumps)
 #' result <- pointsToPointsTess(deaths, pumps)
+#' @seealso \code{\link{pointsInPolygons}}
 #'
 pointsToPointsTess <- function (from.feat, to.feat, cex.text=0.7) {
   vor <- dismo::voronoi(to.feat)

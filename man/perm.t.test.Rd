@@ -4,14 +4,14 @@
 \alias{perm.t.test}
 \title{R function for permutation-based t-test}
 \usage{
-perm.t.test(data, format, B = 1000)
+perm.t.test(data, format, B = 999)
 }
 \arguments{
 \item{data:}{dataframe containing the data.}
 
 \item{format:}{it takes "long" if the data are arranged in two columns, with the left-hand one containing the values, and the righ-hand one containing a grouping variable; it takes "short" if the values of the two groups being compared are stored in two different adjacent columns.}
 
-\item{B:}{the desired number of permutations (set at 1000 by default).}
+\item{B:}{the desired number of permutations (set at 999 by default).}
 }
 \description{
 The function allows to perform a permutation-based t-test to compare two independent groups. The test's results are graphically displayed within the returned chart.

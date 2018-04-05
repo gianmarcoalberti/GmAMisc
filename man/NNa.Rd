@@ -4,41 +4,58 @@
 \alias{NNa}
 \title{R function for Nearest Neighbor analysis of point patterns}
 \usage{
-NNa(feature, studyplot = NULL, buffer = 0, B = 1000, addmap = TRUE)
+NNa(feature, studyplot = NULL, buffer = 0, B = 199, cov.var = NULL,
+  addmap = TRUE)
 }
 \arguments{
-\item{feature:}{feature dataset (of point type).}
+\item{feature:}{feature dataset (of point type; SpatialPointsDataFrame class).}
 
-\item{studyplot:}{shapefile (of polygon type) representing the study area; if not provided, the study area is internally worked out as the convex hull enclosing the input feature dataset.}
+\item{studyplot:}{shapefile (of polygon type; SpatialPolygonsDataFrame class) representing the study area; if not provided, the study area is internally worked out as the convex hull enclosing the input feature dataset.}
 
 \item{buffer:}{add a buffer to the studyplot (0 by default); the unit depends upon the units of the input data.}
 
-\item{B:}{number of randomizations to be used (1000 by default).}
+\item{cov.var:}{numeric covariate (of RasterLayer class).}
+
+\item{B:}{number of randomizations to be used (199 by default).}
 
 \item{addmap:}{TRUE (default) or FALSE if the user wants or does not want a map of the study area and of feature dataset to be also displayed.}
 }
 \description{
-The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of clustering, overdispersion, or random spatial arrangement. Significance assessed via a randomized approach\cr
+The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect).
+It also allows to controll for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class.
+Significance is assessed via a randomized approach.\cr
 }
 \details{
-The function uses a randomized approach to test the significance of the Nearest Neighbor distance: the observed average NN distance is compared against the distribution of average NN distances computed across B iterations.
+The function uses a randomized approach to test the significance of the Nearest Neighbor distance:
+the observed average NN distance is compared against the distribution of average NN distances computed across B iterations.
 In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn.\cr
 
-The function produces a density chart of the randomized average NN distances, with a reference line indicating the observed average NN and a black dot representing the average of the randomized NN distances.
-P-values are reported at the bottom of the same chart. The two tails of the randomized distribution are given a red (left tail, indicating the area of significant clustering) and a blue color (right tail, indicating the area of significant overdispersion).\cr
+The function produces a density chart of the randomized average NN distances, with a black dot indicating the observed average NN and a hollow dot representing the average of the randomized NN distances.
+P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387) are reported at the bottom of the same chart.
+Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).\cr
 
 The function also returns a list storing the following:\cr
 -$obs.aver.NN.dist\cr
 -$rnd.aver.NN.dist\cr
--$Prob. of obs. aver. NN dist. <= random. aver. NN dist.\cr
--$Prob. of obs. aver. NN dist. >= random. aver. NN dist.\cr
+-$Prob. of obs. aver. NN dist. < random. aver. NN dist.\cr
+-$Prob. of obs. aver. NN dist. > random. aver. NN dist.\cr
 }
 \examples{
 data(springs)
 res <- NNa(springs) #perform the analysis using all default values; the result points to a significant clustering
 
-data(rndpoints)
-res <- NNa(rndpoints, buffer=100, B=500) #perform the analysis using the 'rndpoints' dataset, add a 100m buffer arounf the points' convexhull, and use 500 iterations instead of 1000; the result points to a random arrangement
+data(springs)
+data(malta_polyg)
+res <- NNa(springs, studyplot=malta_polyg) #same as above but using a polygon (SpatialPolygonsDataFrame) as studyplot
 
+data(rndpoints)
+res <- NNa(rndpoints, buffer=100, B=499) #perform the analysis using the 'rndpoints' dataset, add a 100m buffer arounf the points' convexhull, and use 499 iterations; the result points to a random arrangement
+
+data(Starbucks)
+data(popdensity)
+res <- NNa(Starbucks, cov.var=popdensity)  #perform the analysis, while controlling for the effect of the population density covariate
+}
+\seealso{
+\code{\link{refNNa}}
 }
 \keyword{NNA}

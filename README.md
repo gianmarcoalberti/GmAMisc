@@ -1,5 +1,10 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.11
+vers 0.12
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -7,31 +12,41 @@ The package comes with some toy datasets:
 
 `assemblage`: distribution of 7 archaeological objects across 9 assemblages.
 
+`deaths`: SpatialPointsDataFrame representing the location of cholera deaths in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
+
+`events`: SpatialPointsDataFrame representing fictional events.
+
+`faults`: SpatialLinesDataFrame representing the geological fault-lines in Malta.
+
+`locations`: SpatialPointsDataFrame representing fictional locations.
+
 `log_regr_data`: admission to graduate school.
+
+`malta_dtm_40`: A RasterLayer representing a Digital Terrain Model for Malta (40m resolution).
+
+`malta_polyg`: A SpatialPolygonsDataFrame representing Malta.
+
+`Massachusetts`: A SpatialPolygonsDataFrame representing the limits of Massachusetts.
 
 `phases`: posterior probabilities for the chronological relation of the Starting and Ending boundaries of two Bayesian independent 14C phases.
 
 `radioc_data`: posterior probabilities for the Starting and Ending boundaries of two 14C phases.
 
-`springs`: SpatialPointsDataFrame representing the location of springs in Malta.
-
-`faults`: SpatialLinesDataFrame representing the geological fault-lines in Malta.
-
 `points`: SpatialPointsDataFrame representing fictional locations.
 
 `polygons`: SpatialPolygonsDataFrame representing fictional polygons.
 
-`events`: SpatialPointsDataFrame representing fictional events.
-
-`locations`: SpatialPointsDataFrame representing fictional locations.
-
-`thiessenpolyg`: SpatialPolygonsDataFrame representing Thiessen polygons around the points represented in the 'locations' dataset.
+`popdensity`: A RasterLayer representing the population density in Massachusetts.
 
 `pumps`: SpatialPointsDataFrame representing the location of public water pumps in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
 
-`deaths`: SpatialPointsDataFrame representing the location of cholera deaths in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
-
 `rndpoints`: SpatialPointsDataFrame representing the random locations.
+
+`springs`: SpatialPointsDataFrame representing the location of springs in Malta.
+
+`Starbucks`: SpatialPointsDataFrame representing the location of Starbucks in Massachusetts.
+
+`thiessenpolyg`: SpatialPolygonsDataFrame representing Thiessen polygons around the points represented in the 'locations' dataset.
 
 <br>
 
@@ -39,6 +54,7 @@ The package comes with some toy datasets:
 * `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
+* `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
 * `distRandSign`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
@@ -49,11 +65,14 @@ The package comes with some toy datasets:
 * `outlier`: function for univariate outliers detection.
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
+* `pointsCovarModel()`: function to model (and test) the dependence of a point pattern on a spatial numeric covariate.
 * `pointsInPolygons()`: function to test points-in-polygons relationship.
 * `pointsToPointsTess()`: function to test the relationship of a set of points with the Thiessen tessellation built around points belonging to another feature dataset.
 * `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
 * `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
+* `refNNa()`: function for refined Nearest Neighbor analysis of point patterns (G function).
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
+* `vislim()`: function for computing the limit of visibility of an object given its height.
 
 <br>
 
@@ -85,23 +104,47 @@ The function produces:
 
 <br>
 
+`distCovarModel()`: is a wrapper for a number of functions out of the extremely useful `spatstat` package (specifically, `ppm()`, `cdf.test()`, `auc()`, `roc()`, `effectfun()`). It allows to test if there is a significant dependence of the input point pattern on a spatial covariate (first-order effect), the latter being the distance to another feature (of either point or line type).The function takes as input two datasets: a point patter (`SpatialPointsDataframe` class) and a feature (either `SpatialPointsDataframe` or `SpatialLinesDataframe` class) the distance to which is used as spatial covariate for the input point pattern.
+
+The function fits a inhomogeneous Poisson point process (Alternative Model-H1) with the distance to the second feature entered by the user (`cov.var` parameter) used as spatial covariate. In other words, the fitted alternative model is a Poisson point process with intensity of the point pattern as a loglinear function of the distance to the second pattern entered by the user (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 309-313). The distance to the second feature is internally calculated via the spatstat's `distfun()` function. Also, the function fits a homogeneous Poisson point model (Null Model-H0, equivalent to Complete Spatial Randomness: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305-306), that is used as comparison for the inhomogeneous point process model in a Likelihood Ratio test (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 334-335). A significant result, i.e. a low p-value, suggests rejecting the Null Hypothesis of CSR in favour of the Alternative Hypothesis of a Poisson point process affected by a covariate effect (i.e., inhomogeneous intensity due to the influence of the covariate) (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305).
+
+The function returns a 4 plots, which can be arranged in just one visualization setting the parameter `oneplot` to TRUE:
+* plot of the study area along with the point pattern of interest and the second feature entered by the user (whose distance is the spatial covariate);
+* plot of the fitted intensity against the spatial covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 308);
+* plot of the cumulative distribution of the covariate at the data points against the cumulative distribution of the covariate at all the spatial location within the study area (rationale: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 184-185);
+* plot of the ROC curve, which help assessing the strenght of the dependence on the covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187-188).
+
+Setting the parameter Foxall to TRUE, the third plot will be replaced by the chart of the Foxall's J function, which is another "useful statistic" when the covariate is the distance to a spatial pattern (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187, 282-284). Values of J are uqual to 1 when the two patterns are independent random patterns; values <1 indicate that the input point pattern tends to be closer to the cov.var pattern than expected for random points); values >1 indicate that the input point pattern avoid the cov.var pattern, i.e. the point pattern is more likely than random points to lie far away from the cov.var pattern (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 284).
+
+A list is also returned, containing what follows:
+* $H0-model: info and relevant statistics regarding the Null Model;
+* $H1-model: info and relevant statistics regarding the Alternative Model;
+* $Model comparison (LRT): results of the Likelihood Ratio test;
+* $AIC-H0: AIC of the Null Model;
+* $AIC-H1: AIC of the Atlernative Model;
+* $KS test: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
+* $AUC: the AUC statistics.
+
+<br>
+
 `distRandSign`: the function allows to assess if there is a significant spatial association between two features. For instance, users may want to assess if some locations tend to lie close to some features represented by polylines. By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event. See the example provided in the function's help documentation, where the question to address is if there is a spatial association between springs and geological fault-lines; in other words: do springs tend to be located near the geological faults?
 
 Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:
 * keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);
 * for each draw, the average minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;
 * a distribution of average minimum distances is thus obtained;
-* the significance (let's call it p) of the observed average minimum distance is calculated by counting how many randomized average minimum distances are equal or smaller than the observed one, and dividing the count by B. The probability that the observed average minimum distance is equal or larger than the randomized average minimum distance is equal to 1-p.
+* p values are computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.
 
 The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. If the study plot shapefile is not provided, the random locations are drawn within the convex hull of the logical union of the convex hulls of the from- and of the to-feature.
 
-The function produces a plot representing the distribution of randomized average minimum distances, and a reference line indicating the observed average minimum distance. The p-value is reported at the bottom of the plot.
+The function produces a plot showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025 and to the 0.975 percentile of the randomized distribution. P-values are reported at the bottom of the plot.
+
 A list is also returned, containing what follows:
 * `$from.feat.min.dist`: distance of each entity of the from-feature to the nearest entity of the to-feature;
 * `$avrg.obs.min.dist`: observed average minimum distance;
 * `$avrg.rnd.min.dist`: randomized average minimum distance;
-* `$Prob. of obs. aver. min. dist. <= random. aver. min. dist.`: p value;
-* `$Prob. of obs. aver. min. dist. >= random. aver. min. dist.`: p value.
+* `$Prob. of obs. aver. min. dist. < random. aver. min. dist.`: p value;
+* `$Prob. of obs. aver. min. dist. > random. aver. min. dist.`: p value.
 
 <br>
 
@@ -154,17 +197,15 @@ The function may also return a density plot (coupled with a rug plot at the bott
 
 <br>
 
-`NNa()`: function for Nearest Neighbor analysis of point patterns. The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of clustering, overdispersion, or random spatial arrangement. Significance assessed via a randomized approach.
+`NNa()`: function for Nearest Neighbor analysis of point patterns. The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect). It also allows to controll for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. Significance is assessed via a randomized approach.
 
-The function uses a randomized approach to test the significance of the Nearest Neighbor distance: the observed average NN distance is compared against the distribution of average NN distances computed across B iterations. In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn.
-
-The function produces a density chart of the randomized average NN distances, with a reference line indicating the observed average NN and a black dot representing the average of the randomized NN distances. P-values are reported at the bottom of the same chart. The two tails of the randomized distribution are given a red (left tail, indicating the area of significant clustering) and a blue color (right tail, indicating the area of significant overdispersion).
+The function uses a randomized approach to test the significance of the Nearest Neighbor distance: the observed average NN distance is compared against the distribution of average NN distances computed across B iterations. In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn. The function produces a density chart of the randomized average NN distances, with a black dot indicating the observed average NN and a hollow dot representing the average of the randomized NN distances. P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387) are reported at the bottom of the same chart. Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).
 
 The function also returns a list storing the following:
 * `$obs.aver.NN.dist`
 * `$rnd.aver.NN.dist`
-* `Prob. of obs. aver. NN dist. <= random. aver. NN dist.`
-* `Prob. of obs. aver. NN dist. >= random. aver. NN dist.`
+* `Prob. of obs. aver. NN dist. < random. aver. NN dist.`
+* `Prob. of obs. aver. NN dist. > random. aver. NN dist.`
 
 <br>
 
@@ -192,6 +233,27 @@ The function also returns a list containing the following:
 * `$classif$brks`: classes' break-points;
 * `$breaks$max.GoF`: number of classes at which the maximum GoF is achieved;
 * `$class.data`: dataframe storing the values and the class in which each value actually falls into.
+
+<br>
+
+`pointsCovarModel()`: the function is a wrapper for a number of functions out of the extremely useful `spatstat` package (specifically, `ppm()`, `cdf.test()`, `auc()`, `roc()`, `effectfun()`). It allows to test if there is a significant dependence of the input point pattern on a underlying spatial numeric covariate (first-order effect). The function takes as input three datasets: a point patter (`SpatialPointsDataFrame` class), a covariate layer (of `RasterLayer` class), and a polygon feature (`SpatialPolygonsDataFrame` class) representing the study area and exactly matching the extent of the covariate layer. If the latter is not provided, it is internally worked out from the covariate raster and may make the whole function take a while to complete.
+
+The function fits a inhomogeneous Poisson point process (Alternative Model-H1) with intensity of the point pattern as a loglinear function of the underlaying numerical covariate (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 307-309). Also, the function fits a homogeneous Poisson point model (Null Model-H0, equivalent to Complete Spatial Randomness: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305-306), that is used as comparison for the inhomogeneous point process model in a Likelihood Ratio test (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 334-335). A significant result, i.e. a low p-value, suggests rejecting the Null Hypothesis of CSR in favour of the Alternative Hypothesis of a Poisson point process affected by a covariate effect (i.e., inhomogeneous intensity due to the influence of the covariate) (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305).
+
+The function returns a 4 plots, which can be arranged in just one visualization setting the parameter `oneplot` to TRUE:
+* plot of the point pattern along with the underlaying covariate raster;\cr
+* plot of the fitted intensity against the spatial covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 308);
+* plot of the cumulative distribution of the covariate at the data points against the cumulative distribution of the covariate at all the spatial location within the study area (rationale: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 184-185);
+* plot of the ROC curve, which help assessing the strenght of the dependence on the covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187-188).
+
+#' A list is also returned, containing what follows:
+* $H0-model: info and relevant statistics regarding the Null Model;
+* $H1-model: info and relevant statistics regarding the Alternative Model;
+* $Model comparison (LRT): results of the Likelihood Ratio test;
+* $AIC-H0: AIC of the Null Model;
+* $AIC-H1: AIC of the Atlernative Model;
+* $KS test: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
+* AUC: the AUC statistics.
 
 <br>
 
@@ -261,12 +323,32 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
+`refNNa()`: function for refined Nearest Neighbor analysis of point patterns (G function). The function allows to perform the refined Nearest Neighbor analysis of point patterns. It plots the cumulative Nearest Neighbour distance, along with a 95% confidence envelope and a curve representing the expected cumulative distribution under the assumption of complete spatial randomness. The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (1000 by default). In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
+
+<br>
+
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot. It returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. *Fundamentals of modern statistical methods: Substantially improving power and accuracy*. New York: Springer) instead of mean and standard deviation.
 The x-axis displays the median of the two variables being compared, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus `z*(MAD/0.6745)`.
 
 <br>
 
+`vislim()`: function for computing the limit of visibility of an object given its height. It plots the angular size of an object (in degrees) against the distance from the observer, and computes at which distance from the observer the angular size of the object hits the limit of human visual acuity (0.01667 degrees). 
+
+The function returns:
+* a plot displaying the decay in angular size as function of the object's distance from the observer; a black dot represents the distance at which the angular size hits the limit of human visual acuity;
+* the value (in km) of the visibility limit.
+
+<br>
+
 ## History
+`version 0.12`: 
+improvements to the output charts of the `chiperm()`, `distRandSign()`, `NNa()`, and `perm.t.test()` functions; 
+`distCovarModel()`, `pointsCovarModel()`, `refNNa()`, and `vislim()` functions added; 
+improvement to the randomized p-values calculation in the `chiperm()`, `distRandSign()`, `NNa()`, and `perm.t.test()` functions; 
+`NNa()` modified to provide the facility to controll for the effect of a spatial covariate; 
+`malta_dtm_40`, `malta_polyg`, `Massachusetts`, `Starbucks`, and `popdensity` datasets added;  
+improvements and typos fixes to the help documentation.
+
 `version 0.11`: 
 improvements and typos fixes to the help documentation; improvements to the output charts of the `chiperm()` function.
 
@@ -318,7 +400,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.11")
+install_github("gianmarcoalberti/GmAMisc@v0.12")
 ```
 4) load the package: 
 ```r
