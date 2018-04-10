@@ -1,10 +1,5 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.12
+vers 0.13
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -57,6 +52,7 @@ The package comes with some toy datasets:
 * `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
 * `distRandSign`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
+* `landfClass()`: function for landform classification on the basis od Topographic Position Index.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
 * `modelvalid()`: function for binary Logistic Regression internal validation.
 * `monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
@@ -71,6 +67,7 @@ The package comes with some toy datasets:
 * `ppdPlot()`: function for plotting Posterior Probability Densities for Bayesian modeled 14C dates/parameters.
 * `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases.
 * `refNNa()`: function for refined Nearest Neighbor analysis of point patterns (G function).
+* `resc.val()`: function to rescale the values of a datset between a minimum and a maximum set by the user.
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
 * `vislim()`: function for computing the limit of visibility of an object given its height.
 
@@ -149,6 +146,31 @@ A list is also returned, containing what follows:
 <br>
 
 `kwPlot()`: function for visually displaying Kruskal-Wallis test's results. The function allows to perform Kruskal-Wallis test, and to display the test's results in a plot along with boxplots. The boxplots display the distribution of the values of the two samples, and jittered points represent the individual observations. At the bottom of the chart, the test statistics (H) is reported, along with the degrees of freedom and the associated p value. Setting the parameter 'posthoc' to TRUE, the Dunn's test is performed (with Bonferroni adjustment by default): a dot chart is returned, as well as a list of p-values (2-sided). In the dot chart, a RED line indicates the 0.05 threshold. The groups compared on a pairwise basis are indicated on the left-hand side of the chart.
+
+<br>
+
+`landfClass()`: function that allows to perform landform classification on the basis of the Topographic Position Index calculated from an input Digital Terrain Model (RasterLayer class). The TPI is the difference between the elevation of a given cell and the average elevation of the surrounding cells in a user defined moving window. For landform classification, the TPI is first standardized and then thresholded; to isolate certain classes, a slope raster (which is internally worked out) is also needed.
+For details about the implemented classification, see: http://www.jennessent.com/downloads/tpi_documentation_online.pdf.
+Two methods are available:
+-the first (devised by Weiss) produces a 6-class landform classification comprising
+* valley
+* lower slope
+* flat slope
+* middle slope
+* upper clope
+* ridge
+-the second (devised by Jennes) produces a 10-class classification comprising
+* canyons, deeply incised streams
+* midslope drainages, shallow valleys
+* upland drainages, headwaters
+* u-shaped valleys
+* plains
+* open slopes
+* upper slopes, mesas
+* local ridges, hills in valleys
+* midslope ridges, small hills
+* mountain tops, high ridges.
+The second classification is based on two TPI that make use of two neighborhoods (moving windows) of different size: a s(mall) n(eighborhood) and a l(arge) n(eighborhood), defined by the parameters `sn` and `ln`. Besides rasters representing the different landform classes, the function optionally returns the TPI raster, either un- or standarized.
 
 <br>
 
@@ -246,7 +268,7 @@ The function returns a 4 plots, which can be arranged in just one visualization 
 * plot of the cumulative distribution of the covariate at the data points against the cumulative distribution of the covariate at all the spatial location within the study area (rationale: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 184-185);
 * plot of the ROC curve, which help assessing the strenght of the dependence on the covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187-188).
 
-#' A list is also returned, containing what follows:
+A list is also returned, containing what follows:
 * $H0-model: info and relevant statistics regarding the Null Model;
 * $H1-model: info and relevant statistics regarding the Alternative Model;
 * $Model comparison (LRT): results of the Likelihood Ratio test;
@@ -327,8 +349,13 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
+`resc.val()`: function that allows to rescale the values of a dataset between a minimum and a maximum that are specified by the user. In doing that, it allows to preserve the shape of the distribution of the original data. The function produces two density charts representing the distribution of the original and of the rescaled dataset. It also returns a dataframe storing the original and rescaled values.
+
+<br>
+
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot. It returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. *Fundamentals of modern statistical methods: Substantially improving power and accuracy*. New York: Springer) instead of mean and standard deviation.
 The x-axis displays the median of the two variables being compared, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus `z*(MAD/0.6745)`.
+
 
 <br>
 
@@ -341,6 +368,9 @@ The function returns:
 <br>
 
 ## History
+`version 0.13`: 
+improvements and typos fixes to the help documentation; improvements to the permuted p-value calculation in the `chiperm()` function; `landfClass()` and `resc.val()` functions added.
+
 `version 0.12`: 
 improvements to the output charts of the `chiperm()`, `distRandSign()`, `NNa()`, and `perm.t.test()` functions; 
 `distCovarModel()`, `pointsCovarModel()`, `refNNa()`, and `vislim()` functions added; 
@@ -400,7 +430,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.12")
+install_github("gianmarcoalberti/GmAMisc@v0.13")
 ```
 4) load the package: 
 ```r

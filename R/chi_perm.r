@@ -25,31 +25,35 @@
 chiperm <- function(data, B=999, resid=FALSE, filter=FALSE, thresh=1.96, cramer=FALSE){
   options(warn=-1)
 
-  chi.values <- vector (mode = "numeric", length = B+1)
+  rowTotals <- rowSums(data)
+  colTotals <- colSums(data)
 
-  chi.values[1] <- chisq.test(data)$statistic
+  obs.chi.value <- chisq.test(data)$statistic
 
-  for(i in 2:B){
-    chi.values[i] <- chisq.test(contingency.data.break(data))$statistic #requires 'InPosition'
-  }
+  chistat.perm <- vector(mode = "numeric", length = B)
+  chi.statistic <- function(x)  chisq.test(x)$statistic
+  chistat.perm <- sapply(r2dtable(B, rowTotals, colTotals), chi.statistic)
 
-  p.lowertail <- (1 + sum (chi.values[-1] < chi.values[1])) / (1 + B)
-  p.uppertail <- (1 + sum (chi.values[-1]  > chi.values[1])) / (1 + B)
+  p.lowertail <- (1 + sum (chistat.perm < obs.chi.value)) / (1 + B)
+  p.uppertail <- (1 + sum (chistat.perm > obs.chi.value)) / (1 + B)
   two.sided.p <- 2 * min(p.lowertail, p.uppertail)
 
-  p.to.report <- ifelse(two.sided.p < 0.001, "< 0.001", ifelse(two.sided.p < 0.01, "< 0.01", ifelse(two.sided.p < 0.05, "< 0.05",round(two.sided.p, 3))))
+  p.to.report <- ifelse(two.sided.p < 0.001, "< 0.001",
+                        ifelse(two.sided.p < 0.01, "< 0.01",
+                               ifelse(two.sided.p < 0.05, "< 0.05",
+                                      round(two.sided.p, 3))))
 
-  d <- density(chi.values)
+  d <- density(chistat.perm)
 
   plot(d, main="Chi-square statistic Permuted Distribution",
-       sub=paste0("\nSolid line: observed chi-sq (", round(chi.values[1], 3), ")","\nDashed line: 95th percentile of the permuted chi-sq (=alpha 0.05 threshold) (", round(quantile(chi.values, c(0.95)),3), ")", "\np value: ", p.to.report, " (n. of permutations: ", B,")"),
+       sub=paste0("\nSolid line: observed chi-sq (", round(obs.chi.value, 3), ")","\nDashed line: 95th percentile of the permuted chi-sq (=alpha 0.05 threshold) (", round(quantile(chistat.perm, c(0.95)),3), ")", "\np value: ", p.to.report, " (n. of permutations: ", B,")"),
        xlab = "",
        cex.main=0.85,
        cex.sub=0.70)
   polygon(d, col = "#BCD2EE88", border = "blue")
-  rug(chi.values, col = "#0000FF")
-  abline(v = chi.values[1])
-  abline(v = round(quantile(chi.values, c(0.95)), 5), lty = 2, col = "blue")
+  rug(chistat.perm, col = "#0000FF")
+  abline(v = obs.chi.value)
+  abline(v = round(quantile(chistat.perm, c(0.95)), 5), lty = 2, col = "blue")
 
   if (resid==TRUE) {
     res <- chisq.test(data)
@@ -59,8 +63,8 @@ chiperm <- function(data, B=999, resid=FALSE, filter=FALSE, thresh=1.96, cramer=
   } else {}
 
   if (cramer==TRUE) {
-    cramerv <- vector (mode = "numeric", length = B) #requires 'lsr'
-    cramerv[1] <- cramersV(data)
+    cramerv <- vector (mode = "numeric", length = B)
+    obs.cramerv[1] <- cramersV(data) #requires 'lsr'
     for(i in 2:B){
       cramerv[i] <- cramersV(contingency.data.break(data, boot=TRUE))
     }
