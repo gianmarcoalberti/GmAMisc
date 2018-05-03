@@ -30,7 +30,7 @@
 #' Setting the parameter Foxall to TRUE, the third plot will be replaced by the chart of the Foxall's J function, which is
 #' another "useful statistic" when the covariate is the distance to a spatial pattern (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187, 282-284).
 #' Values of J are uqual to 1 when the two patterns are independent random patterns; values <1 indicate that the input point pattern tends to be closer to the cov.var pattern than expected
-#' for random points); values >1 indicate that the input point pattern avoid the cov.var pattern, i.e. the point pattern is more likely than random points to lie far away from the cov.var pattern
+#' for random points; values >1 indicate that the input point pattern avoid the cov.var pattern, i.e. the point pattern is more likely than random points to lie far away from the cov.var pattern
 #' (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 284).
 #'
 #' A list is also returned, containing what follows:\cr
@@ -55,7 +55,7 @@
 #' data(springs)
 #' data(malta_polyg)
 #' results <- distCovarModel(springs, faults, malta_polyg)
-#' @seealso \code{\link{distRandSign}}
+#' @seealso \code{\link{distRandSign}} , \code{\link{Aindex}} , \code{\link{pointsCovarModel}}
 #'
 distCovarModel <- function(feature, cov.var, studyplot=NULL, buffer=0,Foxall=FALSE, oneplot=FALSE){
   options(scipen=999)

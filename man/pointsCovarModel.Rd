@@ -65,6 +65,6 @@ data(malta_polyg)
 results <- pointsCovarModel(springs, malta_dtm_40, malta_polyg)
 }
 \seealso{
-\code{\link{distCovarModel}}
+\code{\link{distCovarModel}} , \code{\link{distRandSign}}
 }
 \keyword{covariate}

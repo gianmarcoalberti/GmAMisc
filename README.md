@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.13
+vers 0.14
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -46,6 +46,7 @@ The package comes with some toy datasets:
 <br>
 
 ## List of implemented functions
+* `Aindex()`: function for calculating the Hodder-Okell's A index of spatial association.
 * `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
@@ -74,6 +75,22 @@ The package comes with some toy datasets:
 <br>
 
 ## Description of implemented functions
+`Aindex()`: the function allows to calculate the Hodder-Okell's A index of spatial association between the features of two point patterns. It takes as input two point patterns (SpatialPointDataframe class) and calculate the A index. Details about the latter are provided by:
+* Orton C. 1980, "Mathematics in Archeology", Glasgow: William Collins Sons & Co Ltd, pp. 154-155
+* Blankholm P. 1990, "Intrasite spatial Analysis in Theory and Practice", Aarhus: Aarhus University Press, pp. 130-135.
+
+The A index is about equal to 1 when the two patterns are randomly mingled; it is smaller than 1 when the two patterns are segregrated; it is larger than 1 when the features of the two point patterns tend to occur together. The computational details are provided by Blankholm's book cited above (page 132). The significance of the A index is calculated via the randomized approach devised by:
+* Kintigh K W. 1990, “Intrasite Spatial Analysis: A Commentary of Major Methids”. In Voorrips A, “Mathematics and Information Science in Archaeology: A Flexible Framework”, Studies in Modern Archaeology 3: 165-200.
+
+Given two patterns A and B being analysed, the procedure keeps the points location unchanged and randomly assign the points to either pattern.
+The random re-assigment is performed B times (199 by default) and each time the A index is calculated. One-tailed and two-tailed p values are calculated following the procedure described by Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.
+
+The function produces:
+* an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th percentile of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;
+* optionally (setting the 'addmap' parameter to TRUE), a map showing the point patterns (and the study area, if supplied).
+
+<br>
+
 `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation). The function allows to calculate the AUC of a (binary) Logistic Regression model, adjusted for optimism. The function performs an internal validation of a model via a bootstrap procedure (devised by Harrell and colleagues), which enables to estimate the degree of optimism of a fitted model and the extent to which the model will be able to generalize outside the training dataset.
 The returned boxplots represent:
 * the distribution of the AUC value in the bootstrap sample (auc.boot), which represents "an estimation of the apparent performance" (according to the aforementioned reference);
@@ -368,6 +385,9 @@ The function returns:
 <br>
 
 ## History
+`version 0.14`: 
+improvements and typos fixes to the help documentation; `Aindex()` function added.
+
 `version 0.13`: 
 improvements and typos fixes to the help documentation; improvements to the permuted p-value calculation in the `chiperm()` function; `landfClass()` and `resc.val()` functions added.
 
@@ -430,7 +450,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.13")
+install_github("gianmarcoalberti/GmAMisc@v0.14")
 ```
 4) load the package: 
 ```r

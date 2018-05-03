@@ -51,7 +51,7 @@
 #' data(malta_dtm_40)
 #' data(malta_polyg)
 #' results <- pointsCovarModel(springs, malta_dtm_40, malta_polyg)
-#' @seealso \code{\link{distCovarModel}}
+#' @seealso \code{\link{distCovarModel}} , \code{\link{distRandSign}}
 #'
 pointsCovarModel <- function(feature, cov.var, studyplot=NULL, oneplot=FALSE){
   options(scipen=999)

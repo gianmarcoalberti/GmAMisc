@@ -61,6 +61,6 @@ data(polygons)
 result <- distRandSign(from.feat=points, to.feat=polygons, addmap=FALSE) #calculate the significance of the spatial association between points and polygons, but do not return the map.
 }
 \seealso{
-\code{\link{distCovarModel}}
+\code{\link{distCovarModel}} , \code{\link{Aindex}}
 }
 \keyword{distance}
