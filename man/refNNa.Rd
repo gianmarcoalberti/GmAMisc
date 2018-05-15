@@ -4,7 +4,8 @@
 \alias{refNNa}
 \title{R function for refined Nearest Neighbor analysis of point patterns (G function)}
 \usage{
-refNNa(feature, studyplot = NULL, buffer = 0, B = 1000, order = 1)
+refNNa(feature, studyplot = NULL, buffer = 0, B = 200, cov.var = NULL,
+  order = 1)
 }
 \arguments{
 \item{feature:}{feature dataset (of point type).}
@@ -13,21 +14,29 @@ refNNa(feature, studyplot = NULL, buffer = 0, B = 1000, order = 1)
 
 \item{buffer:}{add a buffer to the studyplot (0 by default); the unit depends upon the units of the input data.}
 
-\item{B:}{number of randomizations to be used (1000 by default).}
+\item{B:}{number of randomizations to be used (200 by default).}
+
+\item{cov.var:}{numeric covariate (of RasterLayer class) (NULL by default).}
 
 \item{order:}{integer indicating the kth nearest neighbour (1 by default).}
 }
 \description{
 The function allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance,
-along with a 95percent confidence envelope and a curve representing the expected cumulative distribution under the assumption of complete spatial randomness.\cr
+along with a 95 percent confidence envelope based on 200 (default value) randomized iterations.
+The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis.
+The covariate must be of RasterLayer class.\cr
 }
 \details{
-The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (1000 by default).
+The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (200 by default).
 In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.\cr
 }
 \examples{
 data(springs)
 refNNa(springs) #produces a plot representing the cumulative nearest neighbour distance distribution; a confidence envelope based on 1000 ranodmized simulations is also shown.
+
+data(Starbucks) #load the Startbucks datset
+data(popdensity) #load the raster representing the numerical covariate
+refNNa(Starbucks, cov.var=popdensity) #perform the analysis, controlling for the 1st order effect
 }
 \seealso{
 \code{\link{NNa}}

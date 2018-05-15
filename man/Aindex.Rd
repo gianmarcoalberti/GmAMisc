@@ -32,12 +32,12 @@ The significance of the A index is calculated via the randomized approach devise
 Kintigh K W. 1990, “Intrasite Spatial Analysis: A Commentary of Major Methids”.
 In Voorrips A, “Mathematics and Information Science in Archaeology: A Flexible Framework”, Studies in Modern Archaeology 3: 165-200\cr
 
-Given two patterns A and B being analysed, the procedure keeps the points location unchanged and randomly assign the points to either pattern.
+Given two patterns A and B being analysed, the procedure keeps the points location unchanged and randomly assigns the points to either pattern.
 The random re-assigment is performed B times (199 by default) and each time the A index is calculated. One-tailed and two-tailed p values are calculated
 following the procedure described by Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.\cr
 
 The function produces:\cr
--an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th percentile
+-an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th quantile
 of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;\cr
 -optionally (setting the 'addmap' parameter to TRUE), a map showing the point patterns (and the study area, if supplied).
 }

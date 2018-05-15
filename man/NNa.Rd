@@ -22,23 +22,25 @@ NNa(feature, studyplot = NULL, buffer = 0, B = 199, cov.var = NULL,
 }
 \description{
 The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect).
-It also allows to controll for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class.
-Significance is assessed via a randomized approach.\cr
+It also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis.
+The covariate must be of RasterLayer class. Significance is assessed via a randomized approach.\cr
 }
 \details{
-The function uses a randomized approach to test the significance of the Nearest Neighbor distance:
-the observed average NN distance is compared against the distribution of average NN distances computed across B iterations.
-In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn.\cr
+The function uses a randomized approach to test the significance of the Clark-Evans R statistic:
+the observed R value is set against the distribution of R values computed across B iterations (199 by default) in which a set of random points
+(with a sample size equal to the number of points of the input feature) is drawn and the statistic recomputed.\cr
 
-The function produces a density chart of the randomized average NN distances, with a black dot indicating the observed average NN and a hollow dot representing the average of the randomized NN distances.
-P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387) are reported at the bottom of the same chart.
+The function produces a histogram of the randomized R values, with a black dot indicating the observed value and a hollow dot representing the average of the randomized R values.
+P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387), are reported at the bottom of the same chart.
 Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).\cr
 
 The function also returns a list storing the following:\cr
--$obs.aver.NN.dist\cr
--$rnd.aver.NN.dist\cr
--$Prob. of obs. aver. NN dist. < random. aver. NN dist.\cr
--$Prob. of obs. aver. NN dist. > random. aver. NN dist.\cr
+-$obs.NN.dist: observed NN distances;\cr
+-$obs.R: observed R value;\cr
+-$aver.rand.R: average randomized R;\cr
+-$p.value clustered: p-value for a clustered pattern;\cr
+-$p.value.dispersed: p-value for a dispersed pattern;\cr
+-$p.value.diff.from.random: p-value for a pattern different from random.\cr
 }
 \examples{
 data(springs)
@@ -49,7 +51,7 @@ data(malta_polyg)
 res <- NNa(springs, studyplot=malta_polyg) #same as above but using a polygon (SpatialPolygonsDataFrame) as studyplot
 
 data(rndpoints)
-res <- NNa(rndpoints, buffer=100, B=499) #perform the analysis using the 'rndpoints' dataset, add a 100m buffer arounf the points' convexhull, and use 499 iterations; the result points to a random arrangement
+res <- NNa(rndpoints, buffer=100, B=999) #perform the analysis using the 'rndpoints' dataset, add a 100m buffer arounf the points' convexhull, and use 499 iterations; the result points to a random arrangement
 
 data(Starbucks)
 data(popdensity)

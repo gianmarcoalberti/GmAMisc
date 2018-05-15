@@ -2,10 +2,10 @@
 % Please edit documentation in R/distRandSign.R
 \name{distRandSign}
 \alias{distRandSign}
-\title{R function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons)}
+\title{R function to test for a significant spatial association between two features (points-to-points, points-to-lines, points-to-polygons)}
 \usage{
 distRandSign(from.feat, to.feat, studyplot = NULL, buffer = 0, B = 199,
-  addmap = TRUE)
+  oneplot = TRUE)
 }
 \arguments{
 \item{from.feat:}{feature (of point type; SpatialPointsDataFrame class) whose spatial association with the to-feature has to be assessed.}
@@ -18,47 +18,69 @@ distRandSign(from.feat, to.feat, studyplot = NULL, buffer = 0, B = 199,
 
 \item{B:}{number of randomizations to be used (199 by default).}
 
-\item{addmap:}{TRUE (default) or FALSE if the user wants or does not want a map of the study area and of the from- and to-feature to be also displayed.}
+\item{oneplot:}{TRUE (default) or FALSE if the user wants or does not want the plots displayed in a single window.}
 }
 \description{
-The function allows to assess if there is a significant spatial association between two features.
+The function allows to assess if there is a significant spatial association between a point pattern and the features of another pattern.
 For instance, users may want to assess if some locations tend to lie close to some features represented by polylines.
-By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event. See the example provided further below (in the examples section), where the question to address is if there is a spatial association between springs and geological fault-lines; in other words: do springs tend to be located near the geological faults?\cr
+By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event.
+See the example provided further below (in the examples section), where the question to address is if there is a spatial association between springs and geological fault-lines;
+in other words: do springs tend to be located near the geological faults?\cr
 }
 \details{
-Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:\cr
+Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature
+(event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:\cr
 
 -keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);\cr
 -for each draw, the average minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;\cr
 -a distribution of average minimum distances is thus obtained;\cr
 -p values are computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.\cr
 
-The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features.
+The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.\cr
+
+The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features.
 If the study plot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.\cr
 
-The function produces a plot showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025 and to the 0.975 percentile of the randomized distribution. P-values are reported at the bottom of the plot.\cr
+If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the function also test the spatial association by means of
+a permuted procedures. Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine
+builds a distribution of averages minimum distances keeping the points location unchanged and randomly assigning the points to either of the two patterns.
+The re-assigment is performed B times (199 by default) and each time the average minimum distance is calculated.\cr
+
+The function produces a histogram showing: the distribution of randomized average minimum distances;
+a black dot indicating the observed average minimum distance;
+a hollow dot representing the average of the randomized minimum distances;
+two blue reference lines correspond to the 0.025 and to the 0.975 quantile of the randomized distribution.
+P-values are reported at the bottom of the plot.\cr
+
+In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but
+derived from the permutation-based routine that has been detailed above.
 
 A list is also returned, containing what follows:\cr
 -$from.feat.min.dist: distance of each entity of the from-feature to the nearest entity of the to-feature;\cr
 -$avrg.obs.min.dist: observed average minimum distance;\cr
--$avrg.rnd.min.dist: randomized average minimum distance;\cr
--$Prob. of obs. aver. min. dist. < random. aver. min. dist;\cr
--$Prob. of obs. aver. min. dist. > random. aver. min. dist.
+-$avrg.rnd.min.dist: average randomized minimum distance;\cr
+-$avrg.perm.min.dist: average permuted minimum distance (returned only when both the from- and to- features are of point type);\cr
+-$p.value closer than expected-rnd-;\cr
+-$p.value closer than expected-perm- (returned only when both the from- and to- features are of point type);\cr
+-$p.value more distant than expected-rnd-;\cr
+-$p.value more distant than expected-perm- (returned only when both the from- and to- features are of point type);\cr
+-$p.value different from random-rnd-;\cr
+-$p.value different from random-perm- (returned only when both the from- and to- features are of point type).\cr
 }
 \examples{
 Example 1:
 data(springs)
 data(faults)
-result <- distRandSign(from.feat=springs, to.feat=faults, addmap=TRUE) #calculate the significance of the spatial association between springs and geological fault-lines; it also returns a map.
+result <- distRandSign(from.feat=springs, to.feat=faults, oneplot=TRUE) #calculate the significance of the spatial association between springs and geological fault-lines; plots displayed in a single panel
 
 Example 2:
 data(malta_polyg)
-result <- distRandSign(from.feat=springs, to.feat=faults, studyplot=malta_polyg, addmap=TRUE) #same as above, but using a polygon (SpatialPolygonsDataFrame class) as studyplot
+result <- distRandSign(from.feat=springs, to.feat=faults, studyplot=malta_polyg, oneplot=FALSE) #same as above, but using a polygon (SpatialPolygonsDataFrame class) as studyplot; plots displayed separately
 
 Example 3:
 data(points)
 data(polygons)
-result <- distRandSign(from.feat=points, to.feat=polygons, addmap=FALSE) #calculate the significance of the spatial association between points and polygons, but do not return the map.
+result <- distRandSign(from.feat=points, to.feat=polygons, oneplot=FALSE) #calculate the significance of the spatial association between points and polygons
 }
 \seealso{
 \code{\link{distCovarModel}} , \code{\link{Aindex}}

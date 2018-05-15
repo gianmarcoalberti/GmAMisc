@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.14
+vers 0.15
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -51,7 +51,8 @@ The package comes with some toy datasets:
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
 * `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
-* `distRandSign`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
+* `distRandSign()`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
+* `featClust()`: function for points clustering on the basis of planar distance.
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `landfClass()`: function for landform classification on the basis od Topographic Position Index.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
@@ -59,7 +60,7 @@ The package comes with some toy datasets:
 * `monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
 * `mwPlot()`: function for visually displaying Mann-Whitney test's results.
 * `NNa()`: function for Nearest Neighbor analysis of point patterns.
-* `outlier`: function for univariate outliers detection.
+* `outlier()`: function for univariate outliers detection.
 * `perm.t.test()`: function for permutation-based t-test.
 * `plotJenks()`: function for plotting univariate classification using Jenks' natural break method.
 * `pointsCovarModel()`: function to model (and test) the dependence of a point pattern on a spatial numeric covariate.
@@ -141,7 +142,7 @@ A list is also returned, containing what follows:
 
 <br>
 
-`distRandSign`: the function allows to assess if there is a significant spatial association between two features. For instance, users may want to assess if some locations tend to lie close to some features represented by polylines. By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event. See the example provided in the function's help documentation, where the question to address is if there is a spatial association between springs and geological fault-lines; in other words: do springs tend to be located near the geological faults?
+`distRandSign()`: allows to assess if there is a significant spatial association between a point pattern and the features of another pattern. For instance, users may want to assess if some locations tend to lie close to some features represented by polylines. By the same token, users may want to know if there is a spatial association between the location of a given event and the location of another event.
 
 Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:
 * keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);
@@ -149,16 +150,44 @@ Given a from-feature (event for which we want to estimate the spatial associatio
 * a distribution of average minimum distances is thus obtained;
 * p values are computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.
 
-The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature. The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. If the study plot shapefile is not provided, the random locations are drawn within the convex hull of the logical union of the convex hulls of the from- and of the to-feature.
+The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.
 
-The function produces a plot showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025 and to the 0.975 percentile of the randomized distribution. P-values are reported at the bottom of the plot.
+The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features. If the study plot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.
+
+If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the function also test the spatial association by means of a permuted procedures. Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine builds a distribution of averages minimum distances keeping the points location unchanged and randomly assigning the points to either of the two patterns. The re-assigment is performed B times (199 by default) and each time the average minimum distance is calculated.
+
+The function produces a histogram showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025 and to the 0.975 quantile of the randomized distribution. P-values are reported at the bottom of the plot. In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but derived from the permutation-based routine that has been detailed above.
 
 A list is also returned, containing what follows:
-* `$from.feat.min.dist`: distance of each entity of the from-feature to the nearest entity of the to-feature;
-* `$avrg.obs.min.dist`: observed average minimum distance;
-* `$avrg.rnd.min.dist`: randomized average minimum distance;
-* `$Prob. of obs. aver. min. dist. < random. aver. min. dist.`: p value;
-* `$Prob. of obs. aver. min. dist. > random. aver. min. dist.`: p value.
+* $from.feat.min.dist: distance of each entity of the from-feature to the nearest entity of the to-feature;
+* $avrg.obs.min.dist: observed average minimum distance;
+* $avrg.rnd.min.dist: average randomized minimum distance;
+* $avrg.perm.min.dist: average permuted minimum distance (returned only when both the from- and to- features are of point type);
+* $p.value closer than expected-rnd-;
+* $p.value closer than expected-perm- (returned only when both the from- and to- features are of point type);
+* $p.value more distant than expected-rnd-;
+* $p.value more distant than expected-perm- (returned only when both the from- and to- features are of point type);
+* $p.value different from random-rnd-;
+* $p.value different from random-perm- (returned only when both the from- and to- features are of point type).
+
+<br>
+
+`featClust()`: provides the facility to cluster the features of the input dataset on the basis of either their (projected) coordinates (for points; SpatialPointsDataFrame class) or of their area (for polygons; SpatialPolygonsDataFrame class). The function internally calculates a distance matrix (based on the Euclidean Distance) on the basis of the points' coordinates or polygons' area. A dendrogram is produced which depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition. Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution.
+
+As for the latter, if the parameter `part` is left empty (default), an optimal cluster solution is obtained. The optimal partition is selected via an iterative procedure which locates at which cluster solution the highest average silhouette width is achieved. If a user-defined partition is needed, the user can input the desired number of clusters using the parameter `part`. In either case, an additional plot is returned besides the cluster dendrogram and the silhouette plot; it displays a scatterplot in which the cluster solution (x-axis) is plotted against the average silhouette width (y-axis). A black dot represent the partition selected either by the iterative procedure or by the user.
+
+Notice that in the silhouette plot, the labels on the left-hand side of the chart show the point ID number and the cluster to which each point is closer. Also, the function returns a plot showing the input point dataset, with points colored by cluster membership. Two new variables are added to the point shapefile's dataframe, storing a point ID number and the corresponding cluster membership.
+
+The silhouette plot is obtained from the silhouette() function out from the 'cluster' package (https://cran.r-project.org/web/packages/cluster/index.html).
+
+For a detailed description of the silhouette plot, its rationale, and its interpretation, see:
+* Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
+
+The function also returns a list storing the following:
+* $dist.matrix: distance matrix;
+* $avr.silh.width.by.n.of.clusters: average silhouette width by number of clusters;
+* $partition.silh.data: silhouette data for the selected partition;
+* $dataset: the input dataset with two variables added ($feat_ID and $clust, the latter storing the cluster membership).
 
 <br>
 
@@ -236,19 +265,21 @@ The function may also return a density plot (coupled with a rug plot at the bott
 
 <br>
 
-`NNa()`: function for Nearest Neighbor analysis of point patterns. The function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect). It also allows to controll for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. Significance is assessed via a randomized approach.
+`NNa()`: futhe function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect). It also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. Significance is assessed via a randomized approach. 
 
-The function uses a randomized approach to test the significance of the Nearest Neighbor distance: the observed average NN distance is compared against the distribution of average NN distances computed across B iterations. In each iteration, a set of random points (with a sample size equal to the number of points of the input feature) is drawn. The function produces a density chart of the randomized average NN distances, with a black dot indicating the observed average NN and a hollow dot representing the average of the randomized NN distances. P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387) are reported at the bottom of the same chart. Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).
+The function uses a randomized approach to test the significance of the Clark-Evans R statistic: the observed R value is set against the distribution of R values computed across B iterations (199 by default) in which a set of random points (with a sample size equal to the number of points of the input feature) is drawn and the statistic recomputed. The function produces a histogram of the randomized R values, with a black dot indicating the observed value and a hollow dot representing the average of the randomized R values. P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387), are reported at the bottom of the same chart. Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).
 
 The function also returns a list storing the following:
-* `$obs.aver.NN.dist`
-* `$rnd.aver.NN.dist`
-* `Prob. of obs. aver. NN dist. < random. aver. NN dist.`
-* `Prob. of obs. aver. NN dist. > random. aver. NN dist.`
+* $obs.NN.dist: observed NN distances;
+* $obs.R: observed R value;
+* $aver.rand.R: average randomized R;
+* $p.value clustered: p-value for a clustered pattern;
+* $p.value.dispersed: p-value for a dispersed pattern;
+* $p.value.diff.from.random: p-value for a pattern different from random.
 
 <br>
 
-`outlier`: function for univariate outliers detection. The function allows to perform univariate outliers detection using three different methods. These methods are those described in: Wilcox R R, *Fundamentals of Modern Statistical Methods: Substantially Improving Power and Accuracy*, Springer 2010 (2nd edition), pages 31-35.
+`outlier()`: function for univariate outliers detection. The function allows to perform univariate outliers detection using three different methods. These methods are those described in: Wilcox R R, *Fundamentals of Modern Statistical Methods: Substantially Improving Power and Accuracy*, Springer 2010 (2nd edition), pages 31-35.
 Two of the three methods are robust, and are therefore less prone to the masking effect.
 * (1) With the mean-based method, an observation is considered outlier if the absolute difference between that observation and the sample mean is more than 2 Standard Deviations away (in either direction) from the mean. In the plot returned by the function, the central reference line is indicating the mean value, while the other two are set at `mean-2*SD and mean+2*SD`.
 * (2) The median-based method considers an observation as being outlier if the absolute difference between the observation and the sample median is larger than the Median Absolute Deviation divided by 0.6745. In this case, the central reference line is set at the median, while the other two are set at `median-2*MAD/0.6745` and `median+2*MAD/0.6745`.
@@ -362,7 +393,7 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
-`refNNa()`: function for refined Nearest Neighbor analysis of point patterns (G function). The function allows to perform the refined Nearest Neighbor analysis of point patterns. It plots the cumulative Nearest Neighbour distance, along with a 95% confidence envelope and a curve representing the expected cumulative distribution under the assumption of complete spatial randomness. The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (1000 by default). In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
+`refNNa()`: allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance, along with a 95 percent confidence envelope based on 200 (default value) randomized iterations. The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (200 by default). In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
 
 <br>
 
@@ -385,6 +416,14 @@ The function returns:
 <br>
 
 ## History
+`version 0.15`: 
+improvements and typos fixes to the help documentation. 
+`featClust()` function added. 
+Improvements to the `NNa()` function, which now provides the observed and randomized calculation of the Clark and Evans's R statistic, with significance computed via permutation procedure; the observed value and the mean value of the randomized Nearest Neighbor distance are provided within the list returned by the function; 2-tailed p value is not also reported, along with the lower (significance for clustered pattern) and upper (significance for dispersed pattern) tailed p values; histogram of the frequency distribution of the randomized R values is returned instead of a density chart. 
+Improvements to the significance calculation in the `distRandSign()` function, which now returns a frequency distribution histogram instead of a density chart. Also, if the analysis takes into account two point patterns, the function now performs an additional test based on a permuted routine along the one provided in earlier versions, which was (and is still) based on a randomized procedure.
+Improvements to the `refNNa()` function, which now can control for the effect of a numerical covariate (controlling for a 1st order effect). 
+Minor improvements to point pattern plot optionally returned by the `Aindex()` function.
+
 `version 0.14`: 
 improvements and typos fixes to the help documentation; `Aindex()` function added.
 
@@ -450,7 +489,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.14")
+install_github("gianmarcoalberti/GmAMisc@v0.15")
 ```
 4) load the package: 
 ```r

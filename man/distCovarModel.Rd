@@ -22,12 +22,13 @@ distCovarModel(feature, cov.var, studyplot = NULL, buffer = 0,
 }
 \description{
 The function is a wrapper for a number of functions out of the extremely useful 'spatstat' package (specifically, ppm(), cdf.test(), auc(), roc(), effectfun()).
-It allows to test if there is a significant dependence of the input point pattern on a spatial covariate (first-order effect), the latter being the distance to another feature (of either point or line type).\cr
-The function takes as input two datasets: a point patter (SpatialPointsDataFrame class) and a feature (either SpatialPointsDataFrame or SpatialLinesDataFrame class)
-the distance to which is used as spatial covariate for the input point pattern.\cr
+It allows to test if there is a significant dependence of the input point pattern on a spatial covariate (first-order effect),
+the latter being the distance to another feature (of either point or line type).\cr
+The function takes as input two datasets: a point patter (SpatialPointsDataFrame class) and a feature
+(either SpatialPointsDataFrame or SpatialLinesDataFrame class) the distance to which is used as spatial covariate for the input point pattern.\cr
 }
 \details{
-The function fits a inhomogeneous Poisson point process (Alternative Model-H1) with the distance to the second feature entered by the user (cov.var parameter) used as spatial covariate.
+The function fits a inhomogeneous Poisson point process (Alternative Model-H1) with the distance to the second feature entered by the user ('cov.var' parameter) used as spatial covariate.
 In other words, the fitted alternative model is a Poisson point process with intensity of the point pattern as a loglinear function of the distance to the second pattern entered by the user
 (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 309-313). The distance to the second feature is internally calculated
 via the spatstat's 'distfun()' function.
@@ -66,10 +67,10 @@ A list is also returned, containing what follows:\cr
 -$AUC: the AUC statistics.
 }
 \examples{
-data(faults)
-data(springs)
-data(malta_polyg)
-results <- distCovarModel(springs, faults, malta_polyg)
+data(faults) #load the polyline dataset representing geological faultilines, the distance to which is used as spatial covariate
+data(springs) #load the point dataset representing springs location
+data(malta_polyg) # load the polygon representing the study area
+results <- distCovarModel(springs, faults, malta_polyg) #perform the analysis
 }
 \seealso{
 \code{\link{distRandSign}} , \code{\link{Aindex}} , \code{\link{pointsCovarModel}}

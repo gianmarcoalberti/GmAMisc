@@ -53,15 +53,15 @@ A list is also returned, containing what follows:\cr
 -$AUC: the AUC statistics.
 }
 \examples{
-data(Starbucks)
-data(Massachusetts)
-data(popdensity)
+data(Starbucks) #load the point dataset representing the location of Starbucks shops
+data(Massachusetts) #load the polygon dataset representing the study area
+data(popdensity) #load the raster representing the population density, to be used as covariate
 results <- pointsCovarModel(Starbucks, popdensity, Massachusetts) #note: a warning message reporting that 4 out of 699 points
 have values of the covariate undefined is expected
 
-data(springs)
-data(malta_dtm_40)
-data(malta_polyg)
+data(springs) #load the point dataset representing the location of springs
+data(malta_polyg) #load the polygon dataset representing the study area
+data(malta_dtm_40) #load the raster representing the elevation dataset, to be used as covariate
 results <- pointsCovarModel(springs, malta_dtm_40, malta_polyg)
 }
 \seealso{
