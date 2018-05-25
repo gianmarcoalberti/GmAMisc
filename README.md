@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.15
+vers 0.16
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -235,13 +235,34 @@ The function also returns a list storing two objects: one is named 'formula' and
 
 <br>
 
-`modelvalid()`: function for binary Logistic Regression internal validation. The function allows to perform internal validation of a binary Logistic Regression model, implementing part of the procedure described in Arboretti Giancristofaro R, Salmaso L. *Model performance analysis and model validation in logistic regression*. Statistica 2003(63): 375–396.
+`modelvalid()`: function for binary Logistic Regression internal validation. The function allows to perform internal validation of a binary Logistic Regression model implementing most of the procedure described in Arboretti Giancristofaro R, Salmaso L. "Model performance analysis and model validation in logistic regression". Statistica 2003(63): 375–396.
+
 The procedure consists of the following steps:
 * (1) the whole dataset is split into two random parts, a fitting (75 percent) and a validation (25 percent) portion;
 * (2) the model is fitted on the fitting portion (i.e., its coefficients are computed considering only the observations in that portion) and its performance is evaluated on both the fitting and the validation portion, using AUC as performance measure;
-* (3) steps 1-2 are repeated B times, eventually getting a fitting and validation distribution of the AUC values. The former provides an estimate of the performance of the model in the population of all the theoretical training samples; the latter represents an estimate of the model’s performance on new and independent data.
+* (3) the model's estimated coefficients and p-values are stored;
+* (4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values, and the fitting distribution of the coefficients and of the associated p-values. 
 
-The function returns two boxplots that represent the training and the testing (i.e., validation) distribution of the AUC value across the 1000 iterations. For an example of the interpretation of the chart, see the aforementioned article, especially page 390-91.
+The AUC fitting distribution provides an estimate of the performance of the model in the population of all the theoretical fitting samples; the AUC validation distribution represents an estimate of the model’s performance on new and independent data.
+
+The function returns:
+* a chart with boxplots representing the fitting distribution of the estimated model's coefficients; coefficients' labels are flagged with an asterisk when the proportion of p-values smaller than 0.05 across the selected iterations is at least 95 percent;
+* a chart with boxplots representing the fitting and the validation distribution of the AUC value across the selected iterations; for an example of the interpretation of the chart, see the aforementioned article, especially page 390-91;
+* a list containing:
+  + $overall.model.significance: statistics related to the overall model p-value and to its distribution across the selected iterations;
+  + $parameters.stability: statistics related to the stability of the estimated coefficients across the selected iterations;
+  + $p.values.stability: statistics related to the stability of the estimated p-values across the selected iterations;
+  + $AUCstatistics: statistics about the fitting and validation AUC distribution.
+
+As for the abovementioned statistics:
+* full: statistic estimated on the full dataset;
+* median: median of the statistic across the selected iterations;
+* QRNG: interquartile range across the selected iterations;
+* QRNGoverMedian: ratio between the QRNG and the median, expressed as percentage;
+* min: minimum of the statistic across the selected iterations;
+* max: maximum of the statistic across the selected iterations;
+* percent_smaller_0.05: (only for $overall.model.significance and $p.values.stability): proportion of times in which the p-values are smaller than 0.05;
+* significant (only for $p.values.stability): asterisk indicating that the p-values of the corresponding coefficient resulted smaller than 0.05 in at least 95percent of the iterations.
 
 <br>
 
@@ -416,6 +437,9 @@ The function returns:
 <br>
 
 ## History
+`version 0.16`: 
+`rgdal` package added to the list of dependencies; substantial improvements to the `modelvalid()` function.
+
 `version 0.15`: 
 improvements and typos fixes to the help documentation. 
 `featClust()` function added. 
@@ -489,7 +513,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.15")
+install_github("gianmarcoalberti/GmAMisc@v0.16")
 ```
 4) load the package: 
 ```r
