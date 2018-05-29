@@ -17,7 +17,7 @@
 #' The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.\cr
 #'
 #' The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be on average closer to the to-feature than randomly generated from-features.
-#' If the study plot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.\cr
+#' If the studyplot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.\cr
 #'
 #' If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the function also test the spatial association by means of
 #' a permuted procedures. Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine
@@ -67,7 +67,7 @@
 #' data(points)
 #' data(polygons)
 #' result <- distRandSign(from.feat=points, to.feat=polygons, oneplot=FALSE) #calculate the significance of the spatial association between points and polygons
-#' @seealso \code{\link{distCovarModel}} , \code{\link{Aindex}}
+#' @seealso \code{\link{distRandCum}} , \code{\link{distCovarModel}} , \code{\link{Aindex}}
 #'
 distRandSign <- function(from.feat, to.feat, studyplot=NULL, buffer=0, B=199, oneplot=TRUE){
 

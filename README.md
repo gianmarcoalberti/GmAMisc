@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.16
+vers 0.17
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -51,7 +51,8 @@ The package comes with some toy datasets:
 * `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
 * `chiperm()`: function for permutation-based chi-square test of independence.
 * `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
-* `distRandSign()`: function to calculate the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
+* `distRandCum()`: function to test the significance of the spatial relationship between two features in terms of the cumulative distribution of minimum distances.
+* `distRandSign()`: function to test the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
 * `featClust()`: function for points clustering on the basis of planar distance.
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `landfClass()`: function for landform classification on the basis od Topographic Position Index.
@@ -139,6 +140,24 @@ A list is also returned, containing what follows:
 * $AIC-H1: AIC of the Atlernative Model;
 * $KS test: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
 * $AUC: the AUC statistics.
+
+<br>
+
+`distRandCum()`: allows to assess if there is a significant spatial association between a point pattern and the features of another pattern.
+For instance, users may want to assess if the features of a point pattern tend to lie close to some features represented by polylines. Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of q randomized procedure:
+* keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);
+* for each draw, the minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;
+* a cumulative distribution of random minimum distances is thus obtained;
+* the cumulative random minimum distances are used to work out a 95percent confidence envelope that allows to assess the statistical significance of the cumulative distribution of the observed minimum distances.
+
+The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.
+
+The rationale of the procedure is that, if there indeed is a spatial association between the two features, the from-feature should be closer to the to-feature than randomly generated from-features. If the studyplot shapefile is not provided, the random locations are drawn within a bounding polygon based on the union the convex hulls of the from- and of the to-feature.
+
+If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the user may opt for the randomized procedure described above (parameter 'type' set to 'rand'), or for a permutation-based procedure (parameter 'type' set to 'perm'). Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine builds a cumulative distribution of minimum distances keeping the points location unchanged and randomly assigning the points to either of the two patterns. The re-assigment is performed B times (200 by default) and each time the minimum distance is calculated.
+
+The function produces a cumulative distribution chart in which the distribution of the observed minimum distances is represented by a black line,
+and the 95percent confidence envelope is represented in grey. The number of iteration used and the type of analysis (whether randomization-based or permutation-based) are reported in the chart's title.
 
 <br>
 
@@ -437,6 +456,9 @@ The function returns:
 <br>
 
 ## History
+`version 0.17`: 
+improvements and typos fixes to the help documentation; `distRandCum()` function added.
+
 `version 0.16`: 
 `rgdal` package added to the list of dependencies; substantial improvements to the `modelvalid()` function.
 
@@ -513,7 +535,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.16")
+install_github("gianmarcoalberti/GmAMisc@v0.17")
 ```
 4) load the package: 
 ```r
