@@ -151,4 +151,7 @@ Aindex <- function(x, y, studyplot=NULL, B=199, addmap=FALSE){
   abline(v=quantile(Aind.perm, 0.025), lty=2, col="blue")
   abline(v=quantile(Aind.perm, 0.975), lty=2, col="blue")
   points(x=Aind, y=0, pch=20, col = "black")
+
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
 }

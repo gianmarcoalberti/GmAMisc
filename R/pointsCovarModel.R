@@ -139,5 +139,9 @@ pointsCovarModel <- function(feature, cov.var, studyplot=NULL, oneplot=FALSE){
                   "AIC-H1"=AIC(PPM1),
                   "KS test"=kolmsmirn,
                   "AUC"=areaundercurve)
+
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
   return(results)
 }

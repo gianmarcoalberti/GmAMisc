@@ -134,7 +134,7 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
   pvalue.full.df <- data.frame(full=anova(fit, update(fit, ~1), test="Chisq")$`Pr(>Chi)`[2],
                                median=round(median(pvalue.full),6),
                                QRNG=round(quantile(pvalue.full, 0.75) - quantile(pvalue.full, 0.25),6),
-                               QRNGoverMedian=round(((quantile(pvalue.full, 0.75) - quantile(pvalue.full, 0.25)) / median(pvalue.full)) *100,1),
+                               QRNGoverMedian=round(((quantile(pvalue.full, 0.75) - quantile(pvalue.full, 0.25)) / median(pvalue.full)) * 100,1),
                                min=round(min(pvalue.full),6),
                                max=round(max(pvalue.full),6),
                                percent_smaller_0.05=sum(pvalue.full < 0.05) / B * 100)
@@ -230,8 +230,13 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
         cex.sub=0.75)
 
 
-  return <- list("overall.model.significance"=pvalue.full.df,
+  results <- list("overall.model.significance"=pvalue.full.df,
                  "parameters.stability"=par.estim.stab,
                  "p.values.stability"=pvalues.stab,
                  "AUCstatistics"=AUCglobal.df)
+
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
+  return(results)
 }

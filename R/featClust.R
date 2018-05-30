@@ -162,8 +162,13 @@ featClust <- function(x, aggl.meth = "ward.D2", part=NULL, oneplot=TRUE, cex.dnd
        offset = 1.2,
        srt = 90)
 
-  return <- list("dist.matrix"=d,
+  results <- list("dist.matrix"=d,
                  "avr.silh.width.by.n.of.clusters"=sil.res,
                  "partition.silh.data"=final.sil.data,
                  "dataset"=x)
+
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
+  return(results)
 }

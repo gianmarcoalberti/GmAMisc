@@ -274,5 +274,8 @@ distRandSign <- function(from.feat, to.feat, studyplot=NULL, buffer=0, B=199, on
                     "p.value different from random"=round(two.tailed.p, 3))
   }
 
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
   return(results)
 }

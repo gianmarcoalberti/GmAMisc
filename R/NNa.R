@@ -189,5 +189,8 @@ NNa <- function(feature, studyplot=NULL, buffer=0, B=199, cov.var=NULL, addmap=T
                   "p.value.dispersed"=round(preg,3),
                   "p.value.diff.from.random"=round(two.tailed.p,3))
 
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
   return(results)
 }

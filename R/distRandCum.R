@@ -157,13 +157,13 @@ distRandCum <- function (from.feat, to.feat, studyplot=NULL, buffer=0, B=200, ty
   lower <- apply(tmp, 2, quantile, probs = .025)
   upper <- apply(tmp, 2, quantile, probs = .975)
 
-  #set the plot main title
+  #set the plot's subtitle title
   if ((class(from.feat)[1] == "SpatialPointsDataFrame" | class(from.feat)[1] == "SpatialPoints") &
       (class(to.feat)[1] == "SpatialPointsDataFrame" | class(to.feat)[1] == "SpatialPoints")
       & type=="perm") {
-  maintitle <- paste0("Feature-to-feature distance analysis: \ncumulative distribution of permuted minimum distances across ", B, " iterations")
+  subtitle <- paste0("confidence envelope based on a permutation-based routine employing ", B, " iterations")
   } else {
-    maintitle <- paste0("Feature-to-feature distance analysis: \ncumulative distribution of randomized minimum distances across ", B, " iterations")
+    subtitle <- paste0("confidence envelope based on a randomization-based routine employing ", B, " iterations")
   }
 
   # plot the original data
@@ -174,9 +174,11 @@ distRandCum <- function (from.feat, to.feat, studyplot=NULL, buffer=0, B=200, ty
        col="white",
        xlab="distance to the closest to.feature (d)",
        ylab="Cumulative (d)",
-       main=maintitle,
+       main="Feature-to-feature distance analysis: \ncumulative distribution of observ. min. distances against 95% conf. envel.",
+       sub=subtitle,
        cex.main=0.90,
-       xlim= xlim)
+       cex.sub=0.70,
+       xlim=xlim)
 
   # add in the quantiles
   polygon(c(xs,rev(xs)), c(upper, rev(lower)), col = "#DBDBDB88", border = NA)
@@ -184,4 +186,8 @@ distRandCum <- function (from.feat, to.feat, studyplot=NULL, buffer=0, B=200, ty
        verticals=TRUE,
        do.points=FALSE,
        add=TRUE)
+
+  # restore the original graphical device's settings
+  par(mfrow = c(1,1))
+
 }
