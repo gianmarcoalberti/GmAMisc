@@ -1,6 +1,8 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
 vers 0.18
 
+![DOI](https://zenodo.org/badge/114215246.svg)](https://zenodo.org/badge/latestdoi/114215246)
+
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
 The package comes with some toy datasets:
