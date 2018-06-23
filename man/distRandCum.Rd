@@ -27,13 +27,14 @@ For instance, users may want to assess if the features of a point pattern tend t
 }
 \details{
 Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature
-(event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of q randomized procedure:\cr
+(event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:\cr
 
 -keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);\cr
 -for each draw, the minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;\cr
 -a cumulative distribution of random minimum distances is thus obtained;\cr
--the cumulative random minimum distances are used to work out a 95percent confidence envelope that allows to assess the statistical significance of the
-cumulative distribution of the observed minimum distances.\cr
+-the cumulative random minimum distances are used to work out an acceptance interval (with significance level equal to 0.05;
+sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) that allows to assess the statistical significance of the
+cumulative distribution of the observed minimum distances, and that is built using the above-mentioned B realizations of a Complete Spatial Random process.\cr
 
 The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.\cr
 
@@ -46,7 +47,7 @@ builds a cumulative distribution of minimum distances keeping the points locatio
 The re-assigment is performed B times (200 by default) and each time the minimum distance is calculated.\cr
 
 The function produces a cumulative distribution chart in which the distribution of the observed minimum distances is represented by a black line,
-and the 95percent confidence envelope is represented in grey. The number of iteration used and the type of analysis
+and acceptance interval is represented in grey. The number of iteration used and the type of analysis
 (whether randomization-based or permutation-based) are reported in the chart's title.\cr
 }
 \examples{

@@ -22,6 +22,8 @@
 #' For a detailed description of the silhouette plot, its rationale, and its interpretation, see:\cr
 #' Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
 #'
+#' For the hierarchical clustering of point features, see: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.\cr.
+#'
 #' The function also returns a list storing the following:\cr
 #'
 #' -$dist.matrix: distance matrix;\cr

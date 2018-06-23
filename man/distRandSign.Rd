@@ -49,7 +49,7 @@ The re-assigment is performed B times (199 by default) and each time the average
 The function produces a histogram showing: the distribution of randomized average minimum distances;
 a black dot indicating the observed average minimum distance;
 a hollow dot representing the average of the randomized minimum distances;
-two blue reference lines correspond to the 0.025 and to the 0.975 quantile of the randomized distribution.
+two blue reference lines correspond to the 0.025th and to the 0.975th quantile of the randomized distribution.
 P-values are reported at the bottom of the plot.\cr
 
 In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but

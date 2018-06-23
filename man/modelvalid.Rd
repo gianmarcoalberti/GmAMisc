@@ -4,7 +4,8 @@
 \alias{modelvalid}
 \title{R function for binary Logistic Regression internal validation}
 \usage{
-modelvalid(data, fit, B = 200, oneplot = TRUE, excludeInterc = FALSE)
+modelvalid(data, fit, B = 200, g = 10, oneplot = TRUE,
+  excludeInterc = FALSE)
 }
 \arguments{
 \item{data:}{dataframe containing the dataset (Dependent Variable must be stored in the first column to the left).}
@@ -12,6 +13,8 @@ modelvalid(data, fit, B = 200, oneplot = TRUE, excludeInterc = FALSE)
 \item{fit:}{object returned from glm() function.}
 
 \item{B:}{desired number of iterations (200 by default).}
+
+\item{g:}{number of groups to be used for the Hosmer-Lemeshow test (10 by default).}
 
 \item{oneplot:}{TRUE (default) is the user wants the charts returned in a single visualization.}
 
@@ -27,20 +30,24 @@ Arboretti Giancristofaro R, Salmaso L. "Model performance analysis and model val
 The procedure consists of the following steps:\cr
 (1) the whole dataset is split into two random parts, a fitting (75 percent) and a validation (25 percent) portion;\cr
 (2) the model is fitted on the fitting portion (i.e., its coefficients are computed considering only the observations in that portion) and its performance is evaluated on both the fitting and the validation portion, using AUC as performance measure;\cr
-(3) the model's estimated coefficients and p-values are stored;\cr
-(4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values, and the fitting distribution of the coefficients and of the associated p-values.
+(3) the model's estimated coefficients, p-values, and the p-value of the Hosmer and Lemeshow test are stored;\cr
+(4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values and of the HL test p-values, as well as a fitting distribution of the coefficients and of the associated p-values.
 The AUC fitting distribution provides an estimate of the performance of the model in the population of all the theoretical fitting samples; the AUC validation distribution represents an estimate of the model’s performance on new and independent data.\cr
 
 The function returns:\cr
 -a chart with boxplots representing the fitting distribution of the estimated model's coefficients;
 coefficients' labels are flagged with an asterisk when the proportion of p-values smaller than 0.05 across the selected iterations is at least 95 percent;\cr
 - a chart with boxplots representing the fitting and the validation distribution of the AUC value across the selected iterations.
-For an example of the interpretation of the chart, see the aforementioned article, especially page 390-91.\cr
+for an example of the interpretation of the chart, see the aforementioned article, especially page 390-91;\cr
+-a chart of the levels of the dependent variable plotted against the predicted probabilities (if the model has a high discriminatory power,
+the two stripes of points will tend to be well separated, i.e. the positive outcome of the dependent variable will tend to cluster
+around high values of the predicted probability, while the opposite will hold true for the negative outcome of the dependent variable);\cr
 -a list containing:\cr
 $overall.model.significance: statistics related to the overall model p-value and to its distribution across the selected iterations;\cr
 $parameters.stability: statistics related to the stability of the estimated coefficients across the selected iterations;\cr
 $p.values.stability: statistics related to the stability of the estimated p-values across the selected iterations;\cr
-$AUCstatistics: statistics about the fitting and validation AUC distribution.\cr
+$AUCstatistics: statistics about the fitting and validation AUC distribution;\cr
+$Hosmer-Lemeshow statistics: statistics about the fitting and validation distribution of the HL test p-values.\cr
 
 As for the abovementioned statistics:\cr
 -full: statistic estimated on the full dataset;\cr
@@ -49,7 +56,10 @@ As for the abovementioned statistics:\cr
 -QRNGoverMedian: ratio between the QRNG and the median, expressed as percentage;\cr
 -min: minimum of the statistic across the selected iterations;\cr
 -max: maximum of the statistic across the selected iterations;\cr
--percent_smaller_0.05: (only for $overall.model.significance and $p.values.stability): proportion of times in which the p-values are smaller than 0.05;\cr
+-percent_smaller_0.05: (only for $overall.model.significance, $p.values.stability, and $Hosmer-Lemeshow statistics):
+proportion of times in which the p-values are smaller than 0.05; please notice that for the overall model significance and for the p-values stability it is desirable that
+the percentage is at least 95percent, whereas for the HL test p-values it is indeed desirable that the proportion is not larger than 5percent (in line with the interpetation of the test p-value
+which has to be NOT significant in order to hint at a good fit);\cr
 -significant (only for $p.values.stability): asterisk indicating that the p-values of the corresponding coefficient resulted smaller than 0.05
 in at least 95percent of the iterations.
 }
@@ -57,6 +67,8 @@ in at least 95percent of the iterations.
 data(log_regr_data) # load the sample dataset
 model <- glm(admit ~ gre + gpa + rank, data = log_regr_data, family = "binomial") # fit a logistic regression model, storing the results into an object called 'model'
 res <- modelvalid(data=log_regr_data, fit=model, B=1000) # run the function, using 1000 iterations, and store the result in the 'res' object
-
+}
+\seealso{
+\code{\link{logregr}} , \code{\link{aucadj}}
 }
 \keyword{validation}

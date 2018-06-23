@@ -24,7 +24,7 @@ The function may take a while (just matter of few seconds) to completed all the 
 
 (4) Model's standardized (Pearson's) residuals against the predicted probability; the size of the points is proportional to the Cook's distance, and problematic points are flagged by a label reporting their observation number if the following two conditions happen: residual value larger than 3 (in terms of absolute value) AND Cook's distance larger than 1. Recall that an observation is an outlier if it has a response value that is very different from the predicted value based on the model. But, being an outlier doesn't automatically imply that that observation has a negative effect on the model; for this reason, it is good to also check for the Cook's distance, which quantifies how influential is an observation on the model's estimates. Cook's distance should not be larger than 1.\cr
 
-(5) Predicted probability plotted against the leverage value; dots represent observations, and their size is proportional to their leverage value, and their color is coded according to whether or not the leverage is above (lever. not ok) or below (lever. ok) the critical threshold. The latter is represented by a grey reference line, and is also reported at the bottom of the chart itself. An observation has high leverage if it has a particularly unusual combination of predictor values. Observations with high leverage are flagged with their observation number, making it easy to spot them within the dataset. Remember that values with high leverage and/or with high residual may be potential influencial points and may potentially negatively impact the regression. We will return on this when examining the following two plots. As for the leverage threshold, it is set at 3*(k+1)/N (following Pituch-Stevens, Applied Multivariate Statistics for the Social Science. Analyses with SAS and IBM's SPSS, Routledge: New York 2016), where k is the number of predictors and N is the sample size.\cr
+(5) Predicted probability plotted against the leverage value; dots represent observations, and their size is proportional to their leverage value, and their color is coded according to whether or not the leverage is above (lever. not ok) or below (lever. ok) the critical threshold. The latter is represented by a grey reference line, and is also reported at the bottom of the chart itself. An observation has high leverage if it has a particularly unusual combination of predictor values. Observations with high leverage are flagged with their observation number, making it easy to spot them within the dataset. Remember that values with high leverage and/or with high residual may be potential influencial points and may potentially negatively impact the regression. As for the leverage threshold, it is set at 3*(k+1)/N (following Pituch-Stevens, Applied Multivariate Statistics for the Social Science. Analyses with SAS and IBM's SPSS, Routledge: New York 2016), where k is the number of predictors and N is the sample size.\cr
 
 (6) Predicted probability against the Cook's distance.\cr
 
@@ -40,7 +40,9 @@ The function also returns a list storing two objects: one is named 'formula' and
 data(log_regr_data)
 res <- logregr(data=log_regr_data) # performs the analysis, displays the charts, and store the model's result into the 'res' object
 summary(res$fit) # displays the model's coefficients on the R console
-
+}
+\seealso{
+\code{\link{modelvalid}} , \code{\link{aucadj}}
 }
 \keyword{cook}
 \keyword{diagnostics}

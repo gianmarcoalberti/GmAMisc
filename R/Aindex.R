@@ -18,7 +18,7 @@
 #' following the procedure described by Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.\cr
 #'
 #' The function produces:\cr
-#' -an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th quantile
+#' -an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 0.975th quantile
 #' of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;\cr
 #' -optionally (setting the 'addmap' parameter to TRUE), a map showing the point patterns (and the study area, if supplied).
 #' @param x: point pattern (SpatialPointDataframe class).
@@ -141,7 +141,7 @@ Aindex <- function(x, y, studyplot=NULL, B=199, addmap=FALSE){
   }
 
   #plot the histogram of the permuted distirbution of the A index
-  hist(Aind.perm, main=paste0("Hodder-Okell's A index\n (number of permutations: ", B, ")"),
+  hist(Aind.perm, main=paste0("Freq. distribution of Hodder-Okell's A index\n across ", B, "permutations"),
        sub=paste0("A-index: ", round(Aind, 3),"\n p-value segregated: ", p.lower, "; p-value associated: ", p.upper, "\np-value different from randomly mingled: ", two.tailed.p, "\nA<1 (segregated); A=1 (randomly minlged); A>1 (associated)"),
        xlab="",
        cex.main=0.90,

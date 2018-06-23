@@ -6,20 +6,24 @@
 #' The procedure consists of the following steps:\cr
 #' (1) the whole dataset is split into two random parts, a fitting (75 percent) and a validation (25 percent) portion;\cr
 #' (2) the model is fitted on the fitting portion (i.e., its coefficients are computed considering only the observations in that portion) and its performance is evaluated on both the fitting and the validation portion, using AUC as performance measure;\cr
-#' (3) the model's estimated coefficients and p-values are stored;\cr
-#' (4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values, and the fitting distribution of the coefficients and of the associated p-values.
+#' (3) the model's estimated coefficients, p-values, and the p-value of the Hosmer and Lemeshow test are stored;\cr
+#' (4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values and of the HL test p-values, as well as a fitting distribution of the coefficients and of the associated p-values.
 #' The AUC fitting distribution provides an estimate of the performance of the model in the population of all the theoretical fitting samples; the AUC validation distribution represents an estimate of the model’s performance on new and independent data.\cr
 #'
 #' The function returns:\cr
 #' -a chart with boxplots representing the fitting distribution of the estimated model's coefficients;
 #' coefficients' labels are flagged with an asterisk when the proportion of p-values smaller than 0.05 across the selected iterations is at least 95 percent;\cr
 #' - a chart with boxplots representing the fitting and the validation distribution of the AUC value across the selected iterations.
-#' For an example of the interpretation of the chart, see the aforementioned article, especially page 390-91.\cr
+#' for an example of the interpretation of the chart, see the aforementioned article, especially page 390-91;\cr
+#' -a chart of the levels of the dependent variable plotted against the predicted probabilities (if the model has a high discriminatory power,
+#' the two stripes of points will tend to be well separated, i.e. the positive outcome of the dependent variable will tend to cluster
+#' around high values of the predicted probability, while the opposite will hold true for the negative outcome of the dependent variable);\cr
 #' -a list containing:\cr
 #' $overall.model.significance: statistics related to the overall model p-value and to its distribution across the selected iterations;\cr
 #' $parameters.stability: statistics related to the stability of the estimated coefficients across the selected iterations;\cr
 #' $p.values.stability: statistics related to the stability of the estimated p-values across the selected iterations;\cr
-#' $AUCstatistics: statistics about the fitting and validation AUC distribution.\cr
+#' $AUCstatistics: statistics about the fitting and validation AUC distribution;\cr
+#' $Hosmer-Lemeshow statistics: statistics about the fitting and validation distribution of the HL test p-values.\cr
 #'
 #' As for the abovementioned statistics:\cr
 #' -full: statistic estimated on the full dataset;\cr
@@ -28,13 +32,17 @@
 #' -QRNGoverMedian: ratio between the QRNG and the median, expressed as percentage;\cr
 #' -min: minimum of the statistic across the selected iterations;\cr
 #' -max: maximum of the statistic across the selected iterations;\cr
-#' -percent_smaller_0.05: (only for $overall.model.significance and $p.values.stability): proportion of times in which the p-values are smaller than 0.05;\cr
+#' -percent_smaller_0.05: (only for $overall.model.significance, $p.values.stability, and $Hosmer-Lemeshow statistics):
+#' proportion of times in which the p-values are smaller than 0.05; please notice that for the overall model significance and for the p-values stability it is desirable that
+#' the percentage is at least 95percent, whereas for the HL test p-values it is indeed desirable that the proportion is not larger than 5percent (in line with the interpetation of the test p-value
+#' which has to be NOT significant in order to hint at a good fit);\cr
 #' -significant (only for $p.values.stability): asterisk indicating that the p-values of the corresponding coefficient resulted smaller than 0.05
 #' in at least 95percent of the iterations.
 #'
 #' @param data: dataframe containing the dataset (Dependent Variable must be stored in the first column to the left).
 #' @param fit: object returned from glm() function.
 #' @param B: desired number of iterations (200 by default).
+#' @param g: number of groups to be used for the Hosmer-Lemeshow test (10 by default).
 #' @param oneplot: TRUE (default) is the user wants the charts returned in a single visualization.
 #' @param excludeInterc: if set to TRUE, the chart showing the boxplots of the parameters distribution across the selected iteration will have y-axis
 #' limits corresponding to the min and max of the parameters value; this allows better displaying the boxplots of the model parameters when they end up
@@ -45,8 +53,9 @@
 #' data(log_regr_data) # load the sample dataset
 #' model <- glm(admit ~ gre + gpa + rank, data = log_regr_data, family = "binomial") # fit a logistic regression model, storing the results into an object called 'model'
 #' res <- modelvalid(data=log_regr_data, fit=model, B=1000) # run the function, using 1000 iterations, and store the result in the 'res' object
+#' @seealso \code{\link{logregr}} , \code{\link{aucadj}}
 #'
-modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
+modelvalid <- function(data, fit, B=200, g=10, oneplot=TRUE, excludeInterc=FALSE){
 
   #disable scientific notation
   options(scipen=999)
@@ -57,6 +66,10 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
 
   #set up empy container for the overall p-value of the model fitted to the training (=fitting) partition across the B iterations
   pvalue.full <- vector(mode = "numeric", length=B)
+
+  #set up empty containers for p-values of the HL test perofrmed on the training (=fitting) partition and on the testing (=validation) partition
+  hl.train <- vector(mode = "numeric", length = B)
+  hl.test <- vector(mode = "numeric", length = B)
 
   #store the predicted probabilities based on the fitted model
   #this will be used to calculate the AUC of the model based on the full sample
@@ -79,6 +92,9 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
 
   #calculate the auc of the full model
   auc.full <- roc(data[,1], data$pred.prob.full, data=data)$auc
+
+  #calculate the p-value of the HL test on the full dataset
+  hl.full <- HosmerLemeshowTest(fitted(fit), fit$y)$H$p.value
 
   #set the progress bar to be used inside the loop
   pb <- txtProgressBar(min = 0, max = B, style = 3)
@@ -123,6 +139,12 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
     #calculate the AUC  validation values
     #the performance of the model fitted to the fitting portion (see above) is also evaluated on validation portion
     auc.test[i] <- roc(test[,1], test$pred.prob.back, data=test)$auc
+
+    #calculate the p-value of the HL test on the training (=fitting) portion
+    hl.train[i] <- HosmerLemeshowTest(fit=train$pred.prob, obs=train[,1], ngr=g)$H$p.value
+
+    #calculate the p-value of the HL test on the testing (=validation) portion
+    hl.test[i] <- HosmerLemeshowTest(fit=test$pred.prob.back, obs=test[,1], ngr=g)$H$p.value
 
     setTxtProgressBar(pb, i)
   }
@@ -192,9 +214,33 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
   #give names to the binded dataframe's rows
   rownames(AUCglobal.df) <- c("AUCfitting", "AUCvalidation")
 
+  #work out some statistics for the p-values of the HL test on the training (=fitting) partition
+  HLtraining.df <- data.frame(full=round(hl.full,3),
+                              median=round(median(hl.train),3),
+                              QRNG=round(quantile(hl.train, 0.75) - quantile(hl.train, 0.25),3),
+                              QRNGoverMedian=round(((quantile(hl.train, 0.75) - quantile(hl.train, 0.25)) / median(hl.train)) * 100,1),
+                              min=round(min(hl.train),3),
+                              max=round(max(hl.train),3),
+                              percent_smaller_0.05=sum(hl.train < 0.05) / B)
+
+  #work out some statistics for the p-values of the HL test on the testing (=validation) partition
+  HLtesting.df <- data.frame(full="-",
+                             median=round(median(hl.test),3),
+                             QRNG=round(quantile(hl.test, 0.75) - quantile(hl.test, 0.25),3),
+                             QRNGoverMedian=round(((quantile(hl.test, 0.75) - quantile(hl.test, 0.25)) / median(hl.test)) * 100,1),
+                             min=round(min(hl.test),3),
+                             max=round(max(hl.test),3),
+                             percent_smaller_0.05=sum(hl.test < 0.05) / B)
+
+  #bind the two above dataframes togheter
+  HLglobal.df <- rbind(HLtraining.df, HLtesting.df)
+
+  #give names to the binded dataframe's rows
+  rownames(HLglobal.df) <- c("HLfitting", "HLvalidation")
+
   #set the layout of the plot visualization according to whether or not the parameter 'oneplot' is set to TRUE
   if(oneplot==TRUE){
-    m <- rbind(c(1,2))
+    m <- rbind(c(1,2), c(3,3))
     layout(m)
   }
 
@@ -229,11 +275,25 @@ modelvalid <- function(data, fit, B=200, oneplot=TRUE, excludeInterc=FALSE){
         cex.main=0.95,
         cex.sub=0.75)
 
+  #stripchart of the discriminatory power of the full model
+  stripchart(model$fitted.values ~ model$y,
+             method = "jitter",
+             pch = 20,
+             col="#00000088", cex = 0.7,
+             xlim=c(0,1),
+             xlab="Predicted probability",
+             ylab="Levels of the Dependent Variable (y)",
+             sub=paste0("AUC: ", round(auc.full,3)),
+             main="Discriminatory power of model \n(fitted to the full sample)",
+             cex.main=0.95,
+             cex.sub=0.75,
+             cex.axis=0.7)
 
   results <- list("overall.model.significance"=pvalue.full.df,
-                 "parameters.stability"=par.estim.stab,
-                 "p.values.stability"=pvalues.stab,
-                 "AUCstatistics"=AUCglobal.df)
+                  "parameters.stability"=par.estim.stab,
+                  "p.values.stability"=pvalues.stab,
+                  "AUCstatistics"=AUCglobal.df,
+                  "Hosmer-Lemeshow statistics"=HLglobal.df)
 
   # restore the original graphical device's settings
   par(mfrow = c(1,1))

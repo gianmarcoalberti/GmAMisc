@@ -1,7 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.18
-
-[![DOI](https://zenodo.org/badge/114215246.svg)](https://zenodo.org/badge/latestdoi/114215246)
+vers 0.19
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -10,6 +8,8 @@ The package comes with some toy datasets:
 `assemblage`: distribution of 7 archaeological objects across 9 assemblages.
 
 `deaths`: SpatialPointsDataFrame representing the location of cholera deaths in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
+
+`destin_loc`: SpatialPointsDataFrame representing spots on the volcano Maunga Whau (Auckland, New Zealand), to be used as destination locations for least-cost paths calculation.
 
 `events`: SpatialPointsDataFrame representing fictional events.
 
@@ -45,6 +45,10 @@ The package comes with some toy datasets:
 
 `thiessenpolyg`: SpatialPolygonsDataFrame representing Thiessen polygons around the points represented in the 'locations' dataset.
 
+`volc`: Digital Terrain Model representing the volcano Maunga Whau (Auckland, New Zealand).
+
+`volc.loc`: A SpatialPointsDataFrame representing a spot on the volcano Maunga Whau (Auckland, New Zealand).
+
 <br>
 
 ## List of implemented functions
@@ -61,6 +65,7 @@ The package comes with some toy datasets:
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
 * `modelvalid()`: function for binary Logistic Regression internal validation.
 * `monthlyWind()`: function that allows to download wind data from NOAA/NCEP Global Forecast System (GFS) Atmospheric Model colection, creating monthly averages.
+* `moveCost()`: function for calculating accumulated cost of movement across the terrain and least-cost paths from an origin.
 * `mwPlot()`: function for visually displaying Mann-Whitney test's results.
 * `NNa()`: function for Nearest Neighbor analysis of point patterns.
 * `outlier()`: function for univariate outliers detection.
@@ -90,7 +95,7 @@ Given two patterns A and B being analysed, the procedure keeps the points locati
 The random re-assigment is performed B times (199 by default) and each time the A index is calculated. One-tailed and two-tailed p values are calculated following the procedure described by Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.
 
 The function produces:
-* an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th percentile of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;
+* an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th quantile of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;
 * optionally (setting the 'addmap' parameter to TRUE), a map showing the point patterns (and the study area, if supplied).
 
 <br>
@@ -146,11 +151,12 @@ A list is also returned, containing what follows:
 <br>
 
 `distRandCum()`: allows to assess if there is a significant spatial association between a point pattern and the features of another pattern.
-For instance, users may want to assess if the features of a point pattern tend to lie close to some features represented by polylines. Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of q randomized procedure:
+For instance, users may want to assess if the features of a point pattern tend to lie close to some features represented by polylines. Given a from-feature (event for which we want to estimate the spatial association with the to-feature) and a to-feature (event in relation to which we want to estimate the spatial association for the from-feature), the assessment is performed by means of a randomized procedure:
 * keeping fixed the location of the to-feature, random from-features are drawn B times (the number of randomized from-features is equal to the number of observed from-features);
 * for each draw, the minimum distance to the to-features is calculated; if the to-feature is made up of polygons, the from-features falling within a polygon will have a distance of 0;
 * a cumulative distribution of random minimum distances is thus obtained;
-* the cumulative random minimum distances are used to work out a 95percent confidence envelope that allows to assess the statistical significance of the cumulative distribution of the observed minimum distances.
+* the cumulative random minimum distances are used to work out an acceptance interval (with significance level equal to 0.05; sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) that allows to assess the statistical significance of the
+cumulative distribution of the observed minimum distances, and that is built using the above-mentioned B realizations of a Complete Spatial Random.
 
 The from-feature must be a point feature, whilst the to-feature can be a point or a polyline or a polygon feature.
 
@@ -177,7 +183,7 @@ The rationale of the procedure is that, if there indeed is a spatial association
 
 If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the function also test the spatial association by means of a permuted procedures. Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine builds a distribution of averages minimum distances keeping the points location unchanged and randomly assigning the points to either of the two patterns. The re-assigment is performed B times (199 by default) and each time the average minimum distance is calculated.
 
-The function produces a histogram showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025 and to the 0.975 quantile of the randomized distribution. P-values are reported at the bottom of the plot. In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but derived from the permutation-based routine that has been detailed above.
+The function produces a histogram showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025th and to the 0.975th quantile of the randomized distribution. P-values are reported at the bottom of the plot. In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but derived from the permutation-based routine that has been detailed above.
 
 A list is also returned, containing what follows:
 * $from.feat.min.dist: distance of each entity of the from-feature to the nearest entity of the to-feature;
@@ -203,6 +209,8 @@ The silhouette plot is obtained from the silhouette() function out from the 'clu
 
 For a detailed description of the silhouette plot, its rationale, and its interpretation, see:
 * Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
+
+For the hierarchical clustering of point features, see: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.
 
 The function also returns a list storing the following:
 * $dist.matrix: distance matrix;
@@ -246,7 +254,7 @@ The second classification is based on two TPI that make use of two neighborhoods
 * (2) Odds ratios and their confidence intervals.
 * (3) A chart that is helpful in visually gauging the discriminatory power of the model: the predicted probability (x axis) are plotted against the dependent variable (y axis). If the model proves to have a high discriminatory power, the two stripes of points will tend to be well separated, i.e. the positive outcome of the dependent variable (points with color corresponding to 1) would tend to cluster around high values of the predicted probability, while the opposite will hold true for the negative outcome of the dependent variable (points with color corresponding to 0). In this case, the AUC (which is reported at the bottom of the chart) points to a low discriminatory power.
 * (4) Model's standardized (Pearson's) residuals against the predicted probability; the size of the points is proportional to the Cook's distance, and problematic points are flagged by a label reporting their observation number if the following two conditions happen: residual value larger than 3 (in terms of absolute value) AND Cook's distance larger than 1. Recall that an observation is an outlier if it has a response value that is very different from the predicted value based on the model. But, being an outlier doesn't automatically imply that that observation has a negative effect on the model; for this reason, it is good to also check for the Cook's distance, which quantifies how influential is an observation on the model's estimates. Cook's distance should not be larger than 1.
-* (5) Predicted probability plotted against the leverage value; dots represent observations, and their size is proportional to their leverage value, and their color is coded according to whether or not the leverage is above (lever. not ok) or below (lever. ok) the critical threshold. The latter is represented by a grey reference line, and is also reported at the bottom of the chart itself. An observation has high leverage if it has a particularly unusual combination of predictor values. Observations with high leverage are flagged with their observation number, making it easy to spot them within the dataset. Remember that values with high leverage and/or with high residual may be potential influencial points and may potentially negatively impact the regression. We will return on this when examining the following two plots. As for the leverage threshold, it is set at `3*(k+1)/N` (following Pituch-Stevens, *Applied Multivariate Statistics for the Social Science. Analyses with SAS and IBM's SPSS*, Routledge: New York 2016), where k is the number of predictors and N is the sample size.
+* (5) Predicted probability plotted against the leverage value; dots represent observations, and their size is proportional to their leverage value, and their color is coded according to whether or not the leverage is above (lever. not ok) or below (lever. ok) the critical threshold. The latter is represented by a grey reference line, and is also reported at the bottom of the chart itself. An observation has high leverage if it has a particularly unusual combination of predictor values. Observations with high leverage are flagged with their observation number, making it easy to spot them within the dataset. Remember that values with high leverage and/or with high residual may be potential influencial points and may potentially negatively impact the regression. As for the leverage threshold, it is set at `3*(k+1)/N` (following Pituch-Stevens, *Applied Multivariate Statistics for the Social Science. Analyses with SAS and IBM's SPSS*, Routledge: New York 2016), where k is the number of predictors and N is the sample size.
 * (6) Predicted probability against the Cook's distance.
 * (7) Standardized (Pearson's) residuals against the leverage; points representing observations with positive or negative outcome of the dependent variable are given different colors. Further, points' size is proportional to the Cook's distance. Leverage threshold is indicated by a grey reference line, and the threshold value is also reported at the bottom of the chart. Observations are flagged with their observation number if their residual is larger than 3 (in terms of absolute value) OR if leverage is larger than the critical threshold OR if Cook's distance is larger than 1. This allows to easily check which observation turns out to be an outlier or a high-leverage data point or an influential point, or a combination of the three.
 * (8) Chart that is almost the same as (7) except for the way in which observations are flagged. In fact, they are flagged if the residual is larger than 3 (again, in terms of absolute value) OR if the leverage is higher than the critical threshold AND if a Cook's distance larger than 1 plainly declares them as having a high influence on the model's estimates. Since an observation may be either an outlier or a high-leverage data point, or both, and yet not being influential, the chart allows to spot observations that have an undue influence on our model, regardless of them being either outliers or high-leverage data points, or both.
@@ -256,24 +264,27 @@ The function also returns a list storing two objects: one is named 'formula' and
 
 <br>
 
-`modelvalid()`: function for binary Logistic Regression internal validation. The function allows to perform internal validation of a binary Logistic Regression model implementing most of the procedure described in Arboretti Giancristofaro R, Salmaso L. "Model performance analysis and model validation in logistic regression". Statistica 2003(63): 375–396.
+`modelvalid()`: allows to perform internal validation of a binary Logistic Regression model implementing most of the procedure described in
+Arboretti Giancristofaro R, Salmaso L. "Model performance analysis and model validation in logistic regression". Statistica 2003(63): 375–396.
 
 The procedure consists of the following steps:
 * (1) the whole dataset is split into two random parts, a fitting (75 percent) and a validation (25 percent) portion;
 * (2) the model is fitted on the fitting portion (i.e., its coefficients are computed considering only the observations in that portion) and its performance is evaluated on both the fitting and the validation portion, using AUC as performance measure;
-* (3) the model's estimated coefficients and p-values are stored;
-* (4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values, and the fitting distribution of the coefficients and of the associated p-values. 
+* (3) the model's estimated coefficients, p-values, and the p-value of the Hosmer and Lemeshow test are stored;
+* (4) steps 1-3 are repeated B times, eventually getting a fitting and validation distribution of the AUC values and of the HL test p-values, as well as a fitting distribution of the coefficients and of the associated p-values.
 
 The AUC fitting distribution provides an estimate of the performance of the model in the population of all the theoretical fitting samples; the AUC validation distribution represents an estimate of the model’s performance on new and independent data.
 
 The function returns:
 * a chart with boxplots representing the fitting distribution of the estimated model's coefficients; coefficients' labels are flagged with an asterisk when the proportion of p-values smaller than 0.05 across the selected iterations is at least 95 percent;
 * a chart with boxplots representing the fitting and the validation distribution of the AUC value across the selected iterations; for an example of the interpretation of the chart, see the aforementioned article, especially page 390-91;
+* a chart of the levels of the dependent variable plotted against the predicted probabilities (if the model has a high discriminatory power, the two stripes of points will tend to be well separated, i.e. the positive outcome of the dependent variable will tend to cluster around high values of the predicted probability, while the opposite will hold true for the negative outcome of the dependent variable);
 * a list containing:
   + $overall.model.significance: statistics related to the overall model p-value and to its distribution across the selected iterations;
   + $parameters.stability: statistics related to the stability of the estimated coefficients across the selected iterations;
   + $p.values.stability: statistics related to the stability of the estimated p-values across the selected iterations;
-  + $AUCstatistics: statistics about the fitting and validation AUC distribution.
+  + $AUCstatistics: statistics about the fitting and validation AUC distribution;
+  + $Hosmer-Lemeshow statistics: statistics about the fitting and validation distribution of the HL test p-values.
 
 As for the abovementioned statistics:
 * full: statistic estimated on the full dataset;
@@ -282,7 +293,8 @@ As for the abovementioned statistics:
 * QRNGoverMedian: ratio between the QRNG and the median, expressed as percentage;
 * min: minimum of the statistic across the selected iterations;
 * max: maximum of the statistic across the selected iterations;
-* percent_smaller_0.05: (only for $overall.model.significance and $p.values.stability): proportion of times in which the p-values are smaller than 0.05;
+* percent_smaller_0.05: (only for $overall.model.significance, $p.values.stability, and $Hosmer-Lemeshow statistics): proportion of times in which the p-values are smaller than 0.05; please notice that for the overall model significance and for the p-values stability it is desirable that
+the percentage is at least 95percent, whereas for the HL test p-values it is indeed desirable that the proportion is not larger than 5percent (in line with the interpetation of the test p-value which has to be NOT significant in order to hint at a good fit);
 * significant (only for $p.values.stability): asterisk indicating that the p-values of the corresponding coefficient resulted smaller than 0.05 in at least 95percent of the iterations.
 
 <br>
@@ -295,6 +307,86 @@ The function returns a list containing the following data:
 * `$windMonthFit`: stores the wind speed and direction for each output grid cell.
 
 The function builds upon the `wind.dl()` function from Javier Fernández-López's package `rWind`. The help provided by Dr Fernández-López in creating an earlier version of the `monthlyWind()` function is gratefully acknowledged.
+
+<br>
+
+`moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. The function implements different cost estimations directly or inderectly related to human movement across the landscape.
+
+The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing
+the starting location, i.e. the location from which the accumulated cost is calculated. If the parameter `destin` is fed with a datset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the 'LCPs' dataset (SpatialLines class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
+
+The function builds on functions out of the `gdistance` package, and by default uses a 16-directions movement in calculating the accumulated cost-surface.
+The number of movements can be set by the user via the `moves` parameter. 
+
+As noted in Nakoinz-Knitter (2016). "Modelling Human Behaviour in Landscapes". New York: Springer, p. 183, "gdistance works with conductivity rather than the more usual approach using costs, we need inverse cost functions". For this reason, in this function the cost is calculated using the inverse of the published cost functions.
+
+The following cost functions are implemented:
+
+* Tobler's hiking function (on-path): reshaped as follows
+
+`((6 * exp(3.5 * abs(slope + 0.05))) * 0.278)^-1`
+
+if we use speed, the final accumulated values will be 1/travel time (according to the 'gdistance' help documentation; see page 16 of this PDF: https://cran.r-project.org/web/packages/gdistance/vignettes/gdistance1.pdf); therefore, we use the reciprocal of speed to eventually get travel time/1. The Tobler's equation is multiplied by 0.278 (which is the ratio between 1000 -meters in 1 km- and 3600 -seconds in 1 hour-) to turn KmH into m/s,
+and then reciprocated to turn m/s to s/m; before being reciprocating, we drop the minus before the 3.5. The same applies to the other Tobler's function-related equations listed below.
+
+
+* Tobler's hiking function (off-path):
+
+`(((6 * exp(3.5 * abs(slope + 0.05))) * 1.666667) * 0.278)^-1`
+
+as per Tobler's indication, the off-path walking speed is reduced by 0.6; we use the reciprocal (1.666667) in our case since we are dealing with pace instead of speed.
+
+
+* Márquez-Pérez et al.'s modified Tobler hiking function:
+
+`((4.8 * exp(5.3 * abs((slope[adj] * 0.7) + 0.03))) * 0.278)^-1`
+
+modified version as proposed by Joaquín Márquez-Pérez, Ismael Vallejo-Villalta & José I. Álvarez-Francoso (2017), "Estimated travel time for walking trails in natural areas", Geografisk Tidsskrift-Danish Journal of Geography, 117:1, 53-62, DOI: 10.1080/00167223.2017.1316212.
+
+
+* Relative energetic expenditure cost function:
+
+`(tan((atan(abs(slope) * 57.29578) * 0.0174532925)  / tan(1 * 0.0174532925)))^-1`
+
+slope-based cost function expressing change in potential energy expenditure; in the above formula, `atan(abs(slope)) * 57.29578)` turns rise-over-run to degrees; multiplying by `0.0174532925` turns degrees to radians before calculating the tangent; the same applies to the degrees in the denominator. See Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220; see also Newhard, J. M. L., Levine, N. S., & Phebus, A. D. (2014). The development of integrated terrestrial and marine pathways in the Argo-Saronic region, Greece. Cartography and Geographic Information Science, 41(4), 379–390, with references to studies that use this function.
+
+
+* Herzog's metabolic cost function in J/(kg*m):
+
+`(1337.8 * slope^6 + 278.19 * slope^5 - 517.39 * slope^4 - 78.199 * slope^3 + 93.419 * slope^2 + 19.825 * slope + 1.64)^-1`
+
+see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
+
+
+* Wheeled-vehicle critical slope cost function:
+
+`(1 + ((abs(slope)*100) / sl.crit))^-1`
+
+where `sl.crit` (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16; see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
+
+
+* Pandolf et al.'s metabolic energy expenditure cost function (in watts):
+
+`(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100)))^-1`
+
+where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. See Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. This cost function is used, for instance, in this case study: Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; see also Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.
+
+
+* Van Leusen's metabolic energy expenditure cost function (in watts):
+
+`(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100 + 10)))^-1`
+
+which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. Note that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces
+the value of 6 used by Van Leusen.
+
+When using the Tobler-related cost functions, the time unit can be selected by the user setting the `time` parameter to `h` (hour) or to `m` (minutes). In general, the user can also select which type of visualization the function has to produce; this is achieved setting the 'outp' parameter to either `r` (=raster) or to `c` (=contours). The former will produce a raster image with a colour scale and contour lines representing the accumulated cost surface; the latter parameter will only produce contour lines. The contour lines' interval is set using the parameter `breaks`; is not value is passed to the parameter, the interval will be set by default to 1/10 of the range of values of the accumulated cost surface.
+
+The function returns a list storing:
+* `$accumulated.cost.raster`: raster representing the accumualted cost (`RasterLayer` class);
+* `$isolines`: contour lines derived from the accumulated cost surface (`SpatialLinesDataFrame` class);
+* `$LCPs`: estimated least-cost paths (`SpatialLines` class);
+* `$LCPs$length`: length of each least-cost path (units depend on the unit used in the input DTM);
+* `$dest.loc.w.cost`: copy of the input destination location(s) dataset with a new variable (`cost`) added.
 
 <br>
 
@@ -353,7 +445,7 @@ The function also returns a list containing the following:
 The function fits a inhomogeneous Poisson point process (Alternative Model-H1) with intensity of the point pattern as a loglinear function of the underlaying numerical covariate (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 307-309). Also, the function fits a homogeneous Poisson point model (Null Model-H0, equivalent to Complete Spatial Randomness: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305-306), that is used as comparison for the inhomogeneous point process model in a Likelihood Ratio test (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 334-335). A significant result, i.e. a low p-value, suggests rejecting the Null Hypothesis of CSR in favour of the Alternative Hypothesis of a Poisson point process affected by a covariate effect (i.e., inhomogeneous intensity due to the influence of the covariate) (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 305).
 
 The function returns a 4 plots, which can be arranged in just one visualization setting the parameter `oneplot` to TRUE:
-* plot of the point pattern along with the underlaying covariate raster;\cr
+* plot of the point pattern along with the underlaying covariate raster;
 * plot of the fitted intensity against the spatial covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 308);
 * plot of the cumulative distribution of the covariate at the data points against the cumulative distribution of the covariate at all the spatial location within the study area (rationale: Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 184-185);
 * plot of the ROC curve, which help assessing the strenght of the dependence on the covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187-188).
@@ -435,7 +527,9 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
-`refNNa()`: allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance, along with a 95 percent confidence envelope based on 200 (default value) randomized iterations. The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. The function uses a randomized approach to build the confidence envelope, whereby cumulative distributions of average NN distances of random points are computed across B iterations (200 by default). In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
+`refNNa()`: allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance, along with an acceptance interval (with significance level equal to 0.05; sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) based on B (set to 200 by default) realizations of a Complete Spatial Random process. The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class.
+
+The function uses a randomized approach to build the mentioned acceptance interval, whereby cumulative distributions of average NN distances of random points are computed across B iterations. In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
 
 <br>
 
@@ -445,7 +539,6 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 `robustBAplot()`: function to plot a robust version of the Bland-Altman plot. It returns a chart based on robust (i.e. resistant to outlying values) measures of central tendency and variability: median and Median Absolute Deviation (MAD) (Wilcox R R. 2001. *Fundamentals of modern statistical methods: Substantially improving power and accuracy*. New York: Springer) instead of mean and standard deviation.
 The x-axis displays the median of the two variables being compared, while the y-axis represents their difference. A solid horizontal line represents the bias, i.e. the median of the differences reported on the y-axis. Two dashed horizontal lines represent the region in which 95percent of the observations are expected to lie; they are set at the median plus or minus `z*(MAD/0.6745)`.
-
 
 <br>
 
@@ -458,6 +551,16 @@ The function returns:
 <br>
 
 ## History
+`version 0.19`: 
+improvements and typos fixes to the help documentation; 
+minor improvement to the title of chart returned by the `Aindex()` function; 
+minor improvements to the annotations present in some of the plots returned by the `logregr()` function; 
+Hosmer-Lemeshow test added to the routines implemented in the `modelvalid()` function; 
+minor modification to the title and subtitle of the plot returned by the `distRandCum()` and `refNNa()` functions, where the term "95% confidence envelope" has been changed to "acceptance interval" to comply with the distinction stressed in Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, page 208;
+`moveCost()` function added;
+`volc`, `volc.loc`, and `destin_loc` datasets added;
+`gdistance` package added to the list of dependencies.
+
 `version 0.18`: 
 improvements and typos fixes to the help documentation; under-the-hood performance improvements;improvements to the `distRandCum()` function's chart; fixes aimed at restoring the default graphical device's settings after multiple plots are produced.
 
@@ -540,7 +643,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.18")
+install_github("gianmarcoalberti/GmAMisc@v0.19")
 ```
 4) load the package: 
 ```r

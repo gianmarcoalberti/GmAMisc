@@ -37,7 +37,7 @@ The random re-assigment is performed B times (199 by default) and each time the 
 following the procedure described by Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387.\cr
 
 The function produces:\cr
--an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 97.5th quantile
+-an histogram showing the frequency distribution of the randomized A index, with vertical reference lines representing the 0.025th and 0.975th quantile
 of the distribution. A black dot represents the observed A index. At the bottom of the chart the randomized p values are reported;\cr
 -optionally (setting the 'addmap' parameter to TRUE), a map showing the point patterns (and the study area, if supplied).
 }

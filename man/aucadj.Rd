@@ -30,7 +30,9 @@ At the bottom of the chart, the apparent AUC (i.e., the value deriving from the 
 data(log_regr_data) # load the sample dataset
 model <- glm(admit ~ gre + gpa + rank, data = log_regr_data, family = "binomial") # fit a logistic regression model, storing the results into an object called 'model'
 aucadj(data=log_regr_data, fit=model, B=200)
-
+}
+\seealso{
+\code{\link{logregr}} , \code{\link{modelvalid}}
 }
 \keyword{AUC}
 \keyword{logistic}
