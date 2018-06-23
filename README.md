@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.19
+vers 0.20
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -339,7 +339,7 @@ as per Tobler's indication, the off-path walking speed is reduced by 0.6; we use
 
 * Márquez-Pérez et al.'s modified Tobler hiking function:
 
-`((4.8 * exp(5.3 * abs((slope[adj] * 0.7) + 0.03))) * 0.278)^-1`
+`((4.8 * exp(5.3 * abs((slope * 0.7) + 0.03))) * 0.278)^-1`
 
 modified version as proposed by Joaquín Márquez-Pérez, Ismael Vallejo-Villalta & José I. Álvarez-Francoso (2017), "Estimated travel time for walking trails in natural areas", Geografisk Tidsskrift-Danish Journal of Geography, 117:1, 53-62, DOI: 10.1080/00167223.2017.1316212.
 
@@ -551,6 +551,10 @@ The function returns:
 <br>
 
 ## History
+`version 0.20`: 
+improvements and typos fixes to the help documentation;
+critical bug fix to the `moveCost()` function.
+
 `version 0.19`: 
 improvements and typos fixes to the help documentation; 
 minor improvement to the title of chart returned by the `Aindex()` function; 
@@ -643,7 +647,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.19")
+install_github("gianmarcoalberti/GmAMisc@v0.20")
 ```
 4) load the package: 
 ```r
