@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.20
+vers 0.21
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -313,7 +313,7 @@ The function builds upon the `wind.dl()` function from Javier Fernández-López'
 `moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. The function implements different cost estimations directly or inderectly related to human movement across the landscape.
 
 The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing
-the starting location, i.e. the location from which the accumulated cost is calculated. If the parameter `destin` is fed with a datset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the 'LCPs' dataset (SpatialLines class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
+the starting location, i.e. the location from which the accumulated cost is calculated. If the parameter `destin` is fed with a dataset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the 'LCPs' dataset (SpatialLines class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
 
 The function builds on functions out of the `gdistance` package, and by default uses a 16-directions movement in calculating the accumulated cost-surface.
 The number of movements can be set by the user via the `moves` parameter. 
@@ -365,14 +365,14 @@ see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Beva
 where `sl.crit` (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16; see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
 
 
-* Pandolf et al.'s metabolic energy expenditure cost function (in watts):
+* Pandolf et al.'s metabolic energy expenditure cost function (in Watts):
 
 `(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100)))^-1`
 
-where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. See Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. This cost function is used, for instance, in this case study: Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; see also Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.
+where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; see de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, see Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. This cost function is used, for instance, in this case study: Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; see also Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.
 
 
-* Van Leusen's metabolic energy expenditure cost function (in watts):
+* Van Leusen's metabolic energy expenditure cost function (in Watts):
 
 `(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100 + 10)))^-1`
 
@@ -551,6 +551,11 @@ The function returns:
 <br>
 
 ## History
+`version 0.21`: 
+improvements and typos fixes to the help documentation;
+performance improvements;
+list of terrain coefficients available in literature for the `N` parameter of the `moveCost()` function added to both the README.md file and the function's help documentation.
+
 `version 0.20`: 
 improvements and typos fixes to the help documentation;
 critical bug fix to the `moveCost()` function.
@@ -647,7 +652,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.20")
+install_github("gianmarcoalberti/GmAMisc@v0.21")
 ```
 4) load the package: 
 ```r

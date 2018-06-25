@@ -52,7 +52,7 @@ The function takes as input a Digital Terrain Model (RasterLayer class) and a po
 the starting location, i.e. the location from which the accumulated cost is calculated. \cr
 }
 \details{
-If the parameter 'destin' is fed with a datset representing destination location(s) (SpatialPointsDataFrame class), the function will also calculate
+If the parameter 'destin' is fed with a dataset representing destination location(s) (SpatialPointsDataFrame class), the function will also calculate
 least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable 'length' stored in the 'LCPs' dataset (SpatialLines class) returned by the function.
 The red dot(s) representing the destination location(s) will be labelled with numeric values representing
 cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and
@@ -109,16 +109,18 @@ function.\cr
 where sl.crit (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16;
 \strong{see} Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge. \cr
 
-\strong{Pandolf et al.'s metabolic energy expenditure cost function (in watts)}:\cr
+\strong{Pandolf et al.'s metabolic energy expenditure cost function (in Watts)}:\cr
 
 \eqn{(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100)))^-1}\cr
 
 where W is the walker's body weight (Kg), L is the carried load (in Kg), V is the velocity in m/s, N is a coefficient representing ease of movement on the terrain.\cr
-\strong{See} Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577.\cr
+As for the latter, suggested values available in literature are: Asphalt/blacktop=1.0; Dirt road=1.1; Grass=1.1; Light brush=1.2; Heavy brush=1.5; Swampy bog=1.8; Loose sand=2.1; Hard-packed snow=1.6; Ploughed field=1.3;
+\strong{see} de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4.\cr
+For this cost function, \strong{see} Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577.\cr
 For the use of this cost function in a case study, \strong{see} Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press;
 \strong{see also} Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.\cr
 
-\strong{Van Leusen's metabolic energy expenditure cost function (in watts)}:\cr
+\strong{Van Leusen's metabolic energy expenditure cost function (in Watts)}:\cr
 
 \eqn{(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100 + 10)))^-1}\cr
 
