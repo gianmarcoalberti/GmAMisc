@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.21
+vers 0.22
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -11,6 +11,12 @@ The package comes with some toy datasets:
 
 `destin_loc`: SpatialPointsDataFrame representing spots on the volcano Maunga Whau (Auckland, New Zealand), to be used as destination locations for least-cost paths calculation.
 
+`etna`: RasterLayer representing a Digital Terrain Model (subset of a larger ASTER GDEM representing Sicily) of the Etna volcano (Sicily, Italy).
+
+`etna_start`: SpatialPointsDataFrame representing a spot on the Etna volcano (Sicily, Italy).
+
+`etna_stop`: SpatialPointsDataFrame representing another spot on the Etna volcano (Sicily, Italy).
+
 `events`: SpatialPointsDataFrame representing fictional events.
 
 `faults`: SpatialLinesDataFrame representing the geological fault-lines in Malta.
@@ -19,11 +25,11 @@ The package comes with some toy datasets:
 
 `log_regr_data`: admission to graduate school.
 
-`malta_dtm_40`: A RasterLayer representing a Digital Terrain Model for Malta (40m resolution).
+`malta_dtm_40`: RasterLayer representing a Digital Terrain Model for Malta (40m resolution).
 
-`malta_polyg`: A SpatialPolygonsDataFrame representing Malta.
+`malta_polyg`: SpatialPolygonsDataFrame representing Malta.
 
-`Massachusetts`: A SpatialPolygonsDataFrame representing the limits of Massachusetts.
+`Massachusetts`: SpatialPolygonsDataFrame representing the limits of Massachusetts.
 
 `phases`: posterior probabilities for the chronological relation of the Starting and Ending boundaries of two Bayesian independent 14C phases.
 
@@ -33,7 +39,7 @@ The package comes with some toy datasets:
 
 `polygons`: SpatialPolygonsDataFrame representing fictional polygons.
 
-`popdensity`: A RasterLayer representing the population density in Massachusetts.
+`popdensity`: RasterLayer representing the population density in Massachusetts.
 
 `pumps`: SpatialPointsDataFrame representing the location of public water pumps in London (after Dr Snow's mid-1800s study of cholera outbreak in Soho).
 
@@ -47,7 +53,7 @@ The package comes with some toy datasets:
 
 `volc`: Digital Terrain Model representing the volcano Maunga Whau (Auckland, New Zealand).
 
-`volc.loc`: A SpatialPointsDataFrame representing a spot on the volcano Maunga Whau (Auckland, New Zealand).
+`volc.loc`: SpatialPointsDataFrame representing a spot on the volcano Maunga Whau (Auckland, New Zealand).
 
 <br>
 
@@ -59,7 +65,7 @@ The package comes with some toy datasets:
 * `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
 * `distRandCum()`: function to test the significance of the spatial relationship between two features in terms of the cumulative distribution of minimum distances.
 * `distRandSign()`: function to test the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
-* `featClust()`: function for points clustering on the basis of planar distance.
+* `featClust()`: function for features clustering on the basis of distances/area.
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `landfClass()`: function for landform classification on the basis od Topographic Position Index.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
@@ -165,7 +171,8 @@ The rationale of the procedure is that, if there indeed is a spatial association
 If both the from-feature and the to-feature are of point type (SpatialPointsDataFrame class), the user may opt for the randomized procedure described above (parameter 'type' set to 'rand'), or for a permutation-based procedure (parameter 'type' set to 'perm'). Unlike the procedure described above, whereby random points are drawn within the study area, the permutation-based routine builds a cumulative distribution of minimum distances keeping the points location unchanged and randomly assigning the points to either of the two patterns. The re-assigment is performed B times (200 by default) and each time the minimum distance is calculated.
 
 The function produces a cumulative distribution chart in which the distribution of the observed minimum distances is represented by a black line,
-and the 95percent confidence envelope is represented in grey. The number of iteration used and the type of analysis (whether randomization-based or permutation-based) are reported in the chart's title.
+and the 95percent confidence envelope is represented in grey. The number of iteration used and the type of analysis (whether randomization-based or permutation-based) are reported in the chart's title. For an example of the use of the analysis, see for instance
+Carrero-Pazos, M. (2018). Density, intensity and clustering patterns in the spatial distribution of Galician megaliths (NW Iberian Peninsula). Archaeological and Anthropological Sciences. https://doi.org/10.1007/s12520-018-0662-2, fig. 6.
 
 <br>
 
@@ -199,24 +206,29 @@ A list is also returned, containing what follows:
 
 <br>
 
-`featClust()`: provides the facility to cluster the features of the input dataset on the basis of either their (projected) coordinates (for points; SpatialPointsDataFrame class) or of their area (for polygons; SpatialPolygonsDataFrame class). The function internally calculates a distance matrix (based on the Euclidean Distance) on the basis of the points' coordinates or polygons' area. A dendrogram is produced which depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition. Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution.
+`featClust()`: provides the facility to cluster the features of the input dataset on the basis of either their (projected) coordinates (for points; `SpatialPointsDataFrame` class) or of their area (for polygons; `SpatialPolygonsDataFrame` class). If a target feature dataset (`to.feat`) is provided, the clustering will be based on the distance of the `x` feature to the nearest `to.feature`. When a `to.feature` is specified, the x feature (i.e., the feature that the user wants to cluster) can be either a point (`SpatialPointsDataFrame` class), or a polyline (`SpatialLinesDataFrame` class), or a polygon (`SpatialPolygonsDataFrame` class) feature. **Notice** that if all the `x` features overlap with all the to.feature, all the minimum distances will be 0, and the function will trow an error.
 
-As for the latter, if the parameter `part` is left empty (default), an optimal cluster solution is obtained. The optimal partition is selected via an iterative procedure which locates at which cluster solution the highest average silhouette width is achieved. If a user-defined partition is needed, the user can input the desired number of clusters using the parameter `part`. In either case, an additional plot is returned besides the cluster dendrogram and the silhouette plot; it displays a scatterplot in which the cluster solution (x-axis) is plotted against the average silhouette width (y-axis). A black dot represent the partition selected either by the iterative procedure or by the user.
+If the `to.feature` is not provided, the function internally calculates a similarity matrix (based on the Euclidean Distance) on the basis of the points' coordinates or polygons' area. If the `to.feature` is provided, the similarity matrix will be based on the distance of the `x` feature to the nearest `to.feature`.
 
-Notice that in the silhouette plot, the labels on the left-hand side of the chart show the point ID number and the cluster to which each point is closer. Also, the function returns a plot showing the input point dataset, with points colored by cluster membership. Two new variables are added to the point shapefile's dataframe, storing a point ID number and the corresponding cluster membership.
+A dendrogram is produced which depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition. Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution. As for the latter, if the parameter `part` is left empty (default), an optimal cluster solution is obtained.
 
-The silhouette plot is obtained from the silhouette() function out from the 'cluster' package (https://cran.r-project.org/web/packages/cluster/index.html).
+The optimal partition is selected via an iterative procedure which locates at which cluster solution the highest average silhouette width is achieved. If a user-defined partition is needed, the user can input the desired number of clusters using the parameter `part`. In either case, an additional plot is returned besides the cluster dendrogram and the silhouette plot; it displays a scatterplot in which the cluster solution (x-axis) is plotted against the average silhouette width (y-axis). A black dot represent the partition selected either by the iterative procedure or by the user. Notice that in the silhouette plot, the labels on the left-hand side of the chart show the point ID number and the cluster to which each point is closer.
 
-For a detailed description of the silhouette plot, its rationale, and its interpretation, see:
-* Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
+Also, the function returns a plot showing the input `x` dataset, with features colored by cluster membership. Two new variables are added to the
+shapefile's dataframe, storing a point ID number and the corresponding cluster membership.
 
-For the hierarchical clustering of point features, see: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.
+The silhouette plot is obtained from the `silhouette()` function out from the `cluster` package (https://cran.r-project.org/web/packages/cluster/index.html). For a detailed description of the silhouette plot, its rationale, and its interpretation, **see**:
+Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
+
+For the hierarchical clustering of (point) features, **see**: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.
 
 The function also returns a list storing the following:
-* $dist.matrix: distance matrix;
-* $avr.silh.width.by.n.of.clusters: average silhouette width by number of clusters;
-* $partition.silh.data: silhouette data for the selected partition;
-* $dataset: the input dataset with two variables added ($feat_ID and $clust, the latter storing the cluster membership).
+* `$dist.matrix`: distance matrix;
+* `$avr.silh.width.by.n.of.clusters`: average silhouette width by number of clusters;
+* `$partition.silh.data`: silhouette data for the selected partition;
+* `$coord.or.area.or.min.dist.by.clust`: coordinates, area, or distance to the nearest to.feat coupled with cluster membership;
+* `$dist.stats.by.cluster`: by-cluster summary statistics of the x feature distance to the nearest to.feature;
+* `$dataset`: the input dataset with two variables added ($feat_ID and $clust, the latter storing the cluster membership).
 
 <br>
 
@@ -310,83 +322,94 @@ The function builds upon the `wind.dl()` function from Javier Fernández-López'
 
 <br>
 
-`moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. The function implements different cost estimations directly or inderectly related to human movement across the landscape.
+`moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. It implements different cost estimations directly or inderectly related to human movement across the landscape. The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing the starting location, i.e. the location from which the accumulated cost is calculated.
 
-The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing
-the starting location, i.e. the location from which the accumulated cost is calculated. If the parameter `destin` is fed with a dataset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the 'LCPs' dataset (SpatialLines class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
+If the parameter `destin` is fed with a dataset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the `LCPs` dataset (`SpatialLines` class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing the cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
 
-The function builds on functions out of the `gdistance` package, and by default uses a 16-directions movement in calculating the accumulated cost-surface.
-The number of movements can be set by the user via the `moves` parameter. 
+The function builds on functions out of the `gdistance` package, and by default uses a 16-directions movement in calculating the accumulated cost-surface. The number of movements can be optionally set by the user via the `moves` parameter.
 
-As noted in Nakoinz-Knitter (2016). "Modelling Human Behaviour in Landscapes". New York: Springer, p. 183, "gdistance works with conductivity rather than the more usual approach using costs, we need inverse cost functions". For this reason, in this function the cost is calculated using the inverse of the published cost functions.
+The slope is internally calculated by the function using the `terrain()` function out of the `raster` package, using 8 neighbors. The slope is calculated in degrees and, for the sake of its use within the implemented cost functions, it is internally modified (i.e., turned into either gradient or percent) according to the user-selected cost function. The user can input a slope dataset (`RasterLayer` class) using the parameter `slope`; this can prove useful in cases when the slope has to be preliminarily modified, for instance to mask out areas that cannot be crossed or to weight the slope values according to a user-defined weighting scheme.
 
-The following cost functions are implemented:
+The following cost functions are implemented (*x* stands for *slope*):
 
-* Tobler's hiking function (on-path): reshaped as follows
+* Tobler's hiking function (on-path) (speed in kmh):
 
-`((6 * exp(3.5 * abs(slope + 0.05))) * 0.278)^-1`
-
-if we use speed, the final accumulated values will be 1/travel time (according to the 'gdistance' help documentation; see page 16 of this PDF: https://cran.r-project.org/web/packages/gdistance/vignettes/gdistance1.pdf); therefore, we use the reciprocal of speed to eventually get travel time/1. The Tobler's equation is multiplied by 0.278 (which is the ratio between 1000 -meters in 1 km- and 3600 -seconds in 1 hour-) to turn KmH into m/s,
-and then reciprocated to turn m/s to s/m; before being reciprocating, we drop the minus before the 3.5. The same applies to the other Tobler's function-related equations listed below.
+`6 * exp(-3.5 * abs(tan(x*pi/180) + 0.05))`
 
 
-* Tobler's hiking function (off-path):
+* Tobler's hiking function (off-path) (speed in kmh):
 
-`(((6 * exp(3.5 * abs(slope + 0.05))) * 1.666667) * 0.278)^-1`
+`(6 * exp(-3.5 * abs(tan(x*pi/180) + 0.05))) * 0.6`
 
-as per Tobler's indication, the off-path walking speed is reduced by 0.6; we use the reciprocal (1.666667) in our case since we are dealing with pace instead of speed.
+as per Tobler's indication, the off-path walking speed is reduced by 0.6.
 
 
-* Márquez-Pérez et al.'s modified Tobler hiking function:
+* Márquez-Pérez et al.'s modified Tobler hiking function (speed in kmh)
 
-`((4.8 * exp(5.3 * abs((slope * 0.7) + 0.03))) * 0.278)^-1`
+`4.8 * exp(-5.3 * abs((tan(x*pi/180) * 0.7) + 0.03))`
 
-modified version as proposed by Joaquín Márquez-Pérez, Ismael Vallejo-Villalta & José I. Álvarez-Francoso (2017), "Estimated travel time for walking trails in natural areas", Geografisk Tidsskrift-Danish Journal of Geography, 117:1, 53-62, DOI: 10.1080/00167223.2017.1316212.
+modified version of the Tobler's hiking function as proposed by Joaquín Márquez-Pérez, Ismael Vallejo-Villalta & José I. Álvarez-Francoso (2017), "Estimated travel time for walking trails in natural areas", Geografisk Tidsskrift-Danish Journal of Geography, 117:1, 53-62, DOI: 10.1080/00167223.2017.1316212.
+
+
+* Irmischer-Clarke's modified Tobler hiking function (on-path):
+
+`(0.11 + exp(-(tan(x*pi/180)*100 + 5)^2 / (2 * 30)^2)) * 3.6`
+
+modified version of the Tobler's function as proposed for (male) on-path hiking by Irmischer, I. J., & Clarke, K. C. (2018). Measuring and modeling the speed of human navigation. Cartography and Geographic Information Science, 45(2), 177–186. https://doi.org/10.1080/15230406.2017.1292150. **Note**: the function originally expresses speed in m/s; it has been is reshaped (multiplied by 3.6) to turn it into kmh for consistency with the other Tobler-related cost functions; also, originally the slope is in percent; `tan(x*pi/180)*100` turns the slope from degrees to percent (=rise/run*100).
+
+
+* Irmischer-Clarke's modified Tobler hiking function (off-path):
+
+`(0.11 + 0.67 * exp(-(tan(x*pi/180)*100 + 2)^2 / (2 * 30)^2)) * 3.6`
 
 
 * Relative energetic expenditure cost function:
 
-`(tan((atan(abs(slope) * 57.29578) * 0.0174532925)  / tan(1 * 0.0174532925)))^-1`
+`tan(x*pi/180) / tan (1*pi/180)`
 
-slope-based cost function expressing change in potential energy expenditure; in the above formula, `atan(abs(slope)) * 57.29578)` turns rise-over-run to degrees; multiplying by `0.0174532925` turns degrees to radians before calculating the tangent; the same applies to the degrees in the denominator. See Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220; see also Newhard, J. M. L., Levine, N. S., & Phebus, A. D. (2014). The development of integrated terrestrial and marine pathways in the Argo-Saronic region, Greece. Cartography and Geographic Information Science, 41(4), 379–390, with references to studies that use this function.
+slope-based cost function expressing change in potential energy expenditure; see Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220; **see** also Newhard, J. M. L., Levine, N. S., & Phebus, A. D. (2014). The development of integrated terrestrial and marine pathways in the Argo-Saronic region, Greece. Cartography and Geographic Information Science, 41(4), 379–390, with references to studies that use this function; **see also** ten Bruggencate, R. E., Stup, J. P., Milne, S. B., Stenton, D. R., Park, R. W., & Fayek, M. (2016). A human-centered GIS approach to modeling mobility on southern Baffin Island, Nunavut, Canada. Journal of Field Archaeology, 41(6), 684–698. https://doi.org/10.1080/00934690.2016.1234897.
 
 
 * Herzog's metabolic cost function in J/(kg*m):
 
-`(1337.8 * slope^6 + 278.19 * slope^5 - 517.39 * slope^4 - 78.199 * slope^3 + 93.419 * slope^2 + 19.825 * slope + 1.64)^-1`
+`(1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)`
 
-see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
+**see** Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
 
 
 * Wheeled-vehicle critical slope cost function:
 
-`(1 + ((abs(slope)*100) / sl.crit))^-1`
+`1 + ((tan(x*pi/180)*100) / sl.crit)^2`
 
-where `sl.crit` (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16; see Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
+where `sl.crit` (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16; **see** Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
 
 
 * Pandolf et al.'s metabolic energy expenditure cost function (in Watts):
 
-`(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100)))^-1`
+`1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))`
 
-where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; see de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, see Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. This cost function is used, for instance, in this case study: Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; see also Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.
+where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; **see** de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, **see** Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. For the use of this cost function in a case study, **see** Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; **see also** Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references. **Note**: in the returned charts, the cost is transposed from Watts to kcal/h.
 
 
 * Van Leusen's metabolic energy expenditure cost function (in Watts):
 
-`(1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * abs(slope*100 + 10)))^-1`
+`1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10)`
 
-which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. Note that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces
-the value of 6 used by Van Leusen.
+which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. **Note** that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces the value of 6 used by Van Leusen (as per Herzog 2013). **Note**: in the returned charts, the cost is transposed from Watts to kcal/h.
 
-When using the Tobler-related cost functions, the time unit can be selected by the user setting the `time` parameter to `h` (hour) or to `m` (minutes). In general, the user can also select which type of visualization the function has to produce; this is achieved setting the 'outp' parameter to either `r` (=raster) or to `c` (=contours). The former will produce a raster image with a colour scale and contour lines representing the accumulated cost surface; the latter parameter will only produce contour lines. The contour lines' interval is set using the parameter `breaks`; is not value is passed to the parameter, the interval will be set by default to 1/10 of the range of values of the accumulated cost surface.
+When using the Tobler-related cost functions, the time unit can be selected by the user setting the `time` parameter to `h` (hour) or to `m` (minutes).
+
+In general, the user can also select which type of visualization the function has to produce; this is achieved setting the `outp` parameter to either `r` (=raster) or to `c` (=contours). The former will produce a raster image with a colour scale and contour lines representing the accumulated cost surface; the latter parameter will only produce contour lines.
+
+The contour lines' interval is set using the parameter `breaks`; is not value is passed to the parameter, the interval will be set by default to
+1/10 of the range of values of the accumulated cost surface.
 
 The function returns a list storing:
-* `$accumulated.cost.raster`: raster representing the accumualted cost (`RasterLayer` class);
-* `$isolines`: contour lines derived from the accumulated cost surface (`SpatialLinesDataFrame` class);
-* `$LCPs`: estimated least-cost paths (`SpatialLines` class);
+* `$accumulated.cost.raster`: raster representing the accumualted cost (RasterLayer class);
+* `$isolines`: contour lines derived from the accumulated cost surface (SpatialLinesDataFrame class);
+* `$LCPs`: estimated least-cost paths (SpatialLines class);
 * `$LCPs$length`: length of each least-cost path (units depend on the unit used in the input DTM);
-* `$dest.loc.w.cost`: copy of the input destination location(s) dataset with a new variable (`cost`) added.
+* `$dest.loc.w.cost`: copy of the input destination location(s) dataset with a new variable ('cost') added.
 
 <br>
 
@@ -551,6 +574,10 @@ The function returns:
 <br>
 
 ## History
+`version 0.22`: 
+improvements and typos fixes to the help documentation and to overall package performance;
+substantial modification to the `moveCost()` function, which was producing wrong results in the calculation of the isochrones based on the Tobler's and modified Tobler's hiking functions. The function now also implements the Irmischer-Clarke's hiking function (male, on- and off-path). Improvements to the `featClust()` function, which now includes the facility to cluster features also on the basis of their distance to the nearest target feature. Datasets `etna`, `etna_start`, and `etna_stop` added.
+
 `version 0.21`: 
 improvements and typos fixes to the help documentation;
 performance improvements;
@@ -652,7 +679,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.21")
+install_github("gianmarcoalberti/GmAMisc@v0.22")
 ```
 4) load the package: 
 ```r

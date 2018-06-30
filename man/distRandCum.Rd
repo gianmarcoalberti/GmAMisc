@@ -49,6 +49,9 @@ The re-assigment is performed B times (200 by default) and each time the minimum
 The function produces a cumulative distribution chart in which the distribution of the observed minimum distances is represented by a black line,
 and acceptance interval is represented in grey. The number of iteration used and the type of analysis
 (whether randomization-based or permutation-based) are reported in the chart's title.\cr
+
+For an example of the use of the analysis, \strong{see} for instance
+Carrero-Pazos, M. (2018). Density, intensity and clustering patterns in the spatial distribution of Galician megaliths (NW Iberian Peninsula). Archaeological and Anthropological Sciences. https://doi.org/10.1007/s12520-018-0662-2, fig. 6.\cr
 }
 \examples{
 data(springs)

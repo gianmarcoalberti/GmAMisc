@@ -27,6 +27,9 @@
 #' and acceptance interval is represented in grey. The number of iteration used and the type of analysis
 #' (whether randomization-based or permutation-based) are reported in the chart's title.\cr
 #'
+#' For an example of the use of the analysis, \strong{see} for instance
+#' Carrero-Pazos, M. (2018). Density, intensity and clustering patterns in the spatial distribution of Galician megaliths (NW Iberian Peninsula). Archaeological and Anthropological Sciences. https://doi.org/10.1007/s12520-018-0662-2, fig. 6.\cr
+#'
 #' @param from.feat: feature (of point type; SpatialPointsDataFrame class) whose spatial association with the to-feature has to be assessed.
 #' @param to.feat: feature (point, polyline, or polygon type; SpatialPointsDataFrame, SpatialLinesDataFrame, SpatialPolygonsDataFrame class) in relation to which the spatial association of the from-feature has to be assessed.
 #' @param studyplot: feature (of polygon type; SpatialPolygonsDataFrame class) representing the study area; if not provided, the study area is internally worked out as the bounding polygon based on the union the convex hulls of the from- and of the to-feature.

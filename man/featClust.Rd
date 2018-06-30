@@ -2,13 +2,17 @@
 % Please edit documentation in R/featClust.R
 \name{featClust}
 \alias{featClust}
-\title{R function for points clustering on the basis of planar distance}
+\title{R function for features clustering on the basis of distances/area}
 \usage{
-featClust(x, aggl.meth = "ward.D2", part = NULL, oneplot = TRUE,
-  cex.dndr.lab = 0.85, cex.sil.lab = 0.75)
+featClust(x, to.feat = NULL, aggl.meth = "ward.D2", part = NULL,
+  oneplot = TRUE, cex.dndr.lab = 0.85, cex.sil.lab = 0.75)
 }
 \arguments{
-\item{x:}{dataset whose feature are to be clustered; either points (SpatialPointsDataFrame class) or polygons (SpatialPolygonsDataFrame class).}
+\item{x:}{dataset whose feature are to be clustered; either points (SpatialPointsDataFrame class) or polygons (SpatialPolygonsDataFrame class);
+if the to.feat is specified, x can also be a polylines feature (SpatialLinesDataFrame class).}
+
+\item{to.feat:}{dataset (NULL by default) representing the feature the distance toward which is used as basis for clustering x;
+either points (SpatialPointsDataFrame class), polygons (SpatialPolygonsDataFrame class), or polylines (SpatialLinesDataFrame).}
 
 \item{aggl.meth:}{agglomeration method ("ward.D2" by default).}
 
@@ -22,10 +26,14 @@ featClust(x, aggl.meth = "ward.D2", part = NULL, oneplot = TRUE,
 }
 \description{
 The function provides the facility to cluster the features of the input dataset on the basis of either their (projected) coordinates (for points; SpatialPointsDataFrame class)
-or of their area (for polygons; SpatialPolygonsDataFrame class).
+or of their area (for polygons; SpatialPolygonsDataFrame class). If a target feature dataset (to.feat) is provided, the clustering will be based
+on the distance of the x feature to the nearest to.feature. When a to.feature is specified, the x feature (i.e., the feature that the user wants to cluster)
+can be either a point (SpatialPointsDataFrame class), or a polyline (SpatialLinesDataFrame class), or a polygon (SpatialPolygonsDataFrame class) feature.
+Notice that if all the x features overlap with all the to.feature, all the minimum distances will be 0, and the function will trow an error.\cr
 }
 \details{
-The function internally calculates a distance matrix (based on the Euclidean Distance) on the basis of the points' coordinates or polygons' area.
+If the to.feature is not provided, the function internally calculates a distance matrix (based on the Euclidean Distance) on the basis of the points' coordinates or polygons' area.
+If the to.feature is provided, the distance matrix will be based on the distance of the x feature to the nearest to.feature.
 A dendrogram is produced which depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition.
 Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution.\cr
 
@@ -37,26 +45,37 @@ is plotted against the average silhouette width (y-axis). A black dot represent 
 
 Notice that in the silhouette plot, the labels on the left-hand side of the chart show the point ID number and the cluster to which each point is closer.\cr
 
-Also, the function returns a plot showing the input point dataset, with points colored by cluster membership. Two new variables are added to the
-point shapefile's dataframe, storing a point ID number and the corresponding cluster membership.\cr
+Also, the function returns a plot showing the input dataset, with features colored by cluster membership. Two new variables are added to the
+shapefile's dataframe, storing a point ID number and the corresponding cluster membership.\cr
 
-The silhouette plot is obtained from the silhouette() function out from the 'cluster' package (https://cran.r-project.org/web/packages/cluster/index.html).\cr
+The silhouette plot is obtained from the 'silhouette()' function out from the 'cluster' package (https://cran.r-project.org/web/packages/cluster/index.html).\cr
 For a detailed description of the silhouette plot, its rationale, and its interpretation, see:\cr
 Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257)
 
-For the hierarchical clustering of point features, see: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.\cr.
+For the hierarchical clustering of features, see: Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, 168-173.\cr.
 
 The function also returns a list storing the following:\cr
 
 -$dist.matrix: distance matrix;\cr
 -$avr.silh.width.by.n.of.clusters: average silhouette width by number of clusters;\cr
 -$partition.silh.data: silhouette data for the selected partition;\cr
+-$coord.or.area.or.min.dist.by.clust: coordinates, area, or distance to the nearest to.feat coupled with cluster membership;\cr
+-$dist.stats.by.cluster: by-cluster summary statistics of the x feature distance to the nearest to.feature;\cr
 -$dataset: the input dataset with two variables added ($feat_ID and $clust, the latter storing the cluster membership).
 }
 \examples{
 data(springs)
 res <- featClust(springs) #perform the analysis and automatically select an optimal partition
+
 res <- featClust(springs, part=3) #as above, but selecting a 3-cluster partition
+
+res <- featClust(springs, faults) #cluster springs on the basis of their distance to the nearest geological fault
+
+res <- featClust(polygons, springs) #cluster polygonal areas on the basis of their distance to the nearest spring
+
+res<- featClust(destin_loc, volc.loc) #cluster location points on the basis of their distance from a single location point
+
+res <- featClust(points, polygons) #cluster points on the basis of their distance to the nearest polygon
 
 }
 \keyword{clustering}
