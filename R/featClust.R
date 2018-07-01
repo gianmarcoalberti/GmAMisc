@@ -210,12 +210,12 @@ featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot
 
   #plot the average silhouette value at each cluster solution
   plot(sil.res, xlab = "number of clusters",
-       ylab = "silhouette width",
+       ylab = "average silhouette width",
        ylim = c(0, 1),
        xaxt = "n",
        type = "b",
-       main = "Silhouette width vs. number of clusters",
-       sub = paste0("values on the y-axis represent the average of the silhouettes' width distribution at each cluster solution"),
+       main = "Average silhouette width vs. number of clusters",
+       sub = paste0("values on the y-axis represent the average silhouette width distribution at each cluster solution"),
        cex.main=0.90,
        cex.sub = 0.75)
 

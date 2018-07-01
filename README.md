@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.22
+vers 0.23
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -322,13 +322,13 @@ The function builds upon the `wind.dl()` function from Javier Fernández-López'
 
 <br>
 
-`moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. It implements different cost estimations directly or inderectly related to human movement across the landscape. The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing the starting location, i.e. the location from which the accumulated cost is calculated.
+`moveCost()`: provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward one or multiple destinations. It implements different cost estimations related to human movement across the landscape. The function takes as input a Digital Terrain Model (`RasterLayer` class) and a point feature (`SpatialPointsDataFrame` class), the latter representing the starting location, i.e. the location from which the accumulated cost is calculated.
 
 If the parameter `destin` is fed with a dataset representing destination location(s) (`SpatialPointsDataFrame` class), the function will also calculate least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable `length` stored in the `LCPs` dataset (`SpatialLines` class) returned by the function. The red dot(s) representing the destination location(s) will be labelled with numeric values representing the cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and storing a new variable named `cost`.
 
 The function builds on functions out of the `gdistance` package, and by default uses a 16-directions movement in calculating the accumulated cost-surface. The number of movements can be optionally set by the user via the `moves` parameter.
 
-The slope is internally calculated by the function using the `terrain()` function out of the `raster` package, using 8 neighbors. The slope is calculated in degrees and, for the sake of its use within the implemented cost functions, it is internally modified (i.e., turned into either gradient or percent) according to the user-selected cost function. The user can input a slope dataset (`RasterLayer` class) using the parameter `slope`; this can prove useful in cases when the slope has to be preliminarily modified, for instance to mask out areas that cannot be crossed or to weight the slope values according to a user-defined weighting scheme.
+The slope is internally calculated by the function using the `terrain()` function out of the `raster` package, using 8 neighbors. The slope is calculated in degrees and, for the sake of its use within the implemented cost functions, it is internally modified (i.e., turned into either gradient or percent) according to the user-selected cost function. The user can input a slope dataset (`RasterLayer` class) using the parameter `slope`; this can prove usefull in cases when the slope has to be preliminarily modified, for instance to mask out areas that cannot be crossed or to weight the slope values according to a user-defined weighting scheme.
 
 The following cost functions are implemented (*x* stands for *slope*):
 
@@ -365,37 +365,42 @@ modified version of the Tobler's function as proposed for (male) on-path hiking 
 
 * Relative energetic expenditure cost function:
 
-`tan(x*pi/180) / tan (1*pi/180)`
+`1 / (tan(x*pi/180) / tan (1*pi/180))`
 
 slope-based cost function expressing change in potential energy expenditure; see Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220; **see** also Newhard, J. M. L., Levine, N. S., & Phebus, A. D. (2014). The development of integrated terrestrial and marine pathways in the Argo-Saronic region, Greece. Cartography and Geographic Information Science, 41(4), 379–390, with references to studies that use this function; **see also** ten Bruggencate, R. E., Stup, J. P., Milne, S. B., Stenton, D. R., Park, R. W., & Fayek, M. (2016). A human-centered GIS approach to modeling mobility on southern Baffin Island, Nunavut, Canada. Journal of Field Archaeology, 41(6), 684–698. https://doi.org/10.1080/00934690.2016.1234897.
 
 
 * Herzog's metabolic cost function in J/(kg*m):
 
-`(1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)`
+`1 / ((1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64))`
 
 **see** Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
 
 
 * Wheeled-vehicle critical slope cost function:
 
-`1 + ((tan(x*pi/180)*100) / sl.crit)^2`
+`1 / (1 + ((tan(x*pi/180)*100) / sl.crit)^2)`
 
 where `sl.crit` (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16; **see** Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.
 
 
 * Pandolf et al.'s metabolic energy expenditure cost function (in Watts):
 
-`1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))`
+`1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100)))`
 
-where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; **see** de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, **see** Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. For the use of this cost function in a case study, **see** Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; **see also** Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references. **Note**: in the returned charts, the cost is transposed from Watts to kcal/h.
+where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; **see** de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, **see** Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. For the use of this cost function in a case study, **see** Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; **see also** Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references. **Note**: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).
 
 
 * Van Leusen's metabolic energy expenditure cost function (in Watts):
 
-`1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10)`
+`1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10))`
 
-which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. **Note** that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces the value of 6 used by Van Leusen (as per Herzog 2013). **Note**: in the returned charts, the cost is transposed from Watts to kcal/h.
+which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. **Note** that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces the value of 6 used by Van Leusen (as per Herzog 2013). **Note**: in the returned charts, the cost is transposed from Watts to Megawatts.
+
+**Note** that the walking-speed-related cost functions listed above are used as they are, while the other functions are reciprocated.
+This is done since "gdistance works with conductivity rather than the more usual approach using costs"; therefore
+"we need inverse cost functions" (Nakoinz-Knitter (2016). "Modelling Human Behaviour in Landscapes". New York: Springer, p. 183).
+As a consequence, if we want to estimate time, we have to use the walking-speed functions as they are since the final accumulated values will correspond to the reciprocal of speed, i.e. pace. In the other cases, we have to use 1/cost-function to eventually get cost-function/1.
 
 When using the Tobler-related cost functions, the time unit can be selected by the user setting the `time` parameter to `h` (hour) or to `m` (minutes).
 
@@ -574,6 +579,10 @@ The function returns:
 <br>
 
 ## History
+`version 0.23`: 
+improvements and typos fixes to the help documentation;
+improvements to the labels of the plots produced by the `featClust()` function; fixes to the calculation of the accumulated cost surface and least-cost paths generated by the some of the cost functions implemented in `moveCost()`.
+
 `version 0.22`: 
 improvements and typos fixes to the help documentation and to overall package performance;
 substantial modification to the `moveCost()` function, which was producing wrong results in the calculation of the isochrones based on the Tobler's and modified Tobler's hiking functions. The function now also implements the Irmischer-Clarke's hiking function (male, on- and off-path). Improvements to the `featClust()` function, which now includes the facility to cluster features also on the basis of their distance to the nearest target feature. Datasets `etna`, `etna_start`, and `etna_stop` added.
@@ -679,7 +688,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.22")
+install_github("gianmarcoalberti/GmAMisc@v0.23")
 ```
 4) load the package: 
 ```r

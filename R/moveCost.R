@@ -1,7 +1,7 @@
 #' R function for calculating accumulated cost of movement across the terrain and least-cost paths from an origin.
 #'
 #' The function provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward
-#' one or multiple destinations. It implements different cost estimations directly or inderectly related to human movement across the landscape.
+#' one or multiple destinations. It implements different cost estimations related to human movement across the landscape.
 #' The function takes as input a Digital Terrain Model (RasterLayer class) and a point feature (SpatialPointsDataFrame class), the latter representing
 #' the starting location, i.e. the location from which the accumulated cost is calculated. \cr
 #'
@@ -16,7 +16,7 @@
 #'
 #' The slope is internally calculated by the function using the 'terrain()' function out of the 'raster' package, using 8 neighbors.
 #' The slope is calculated in degrees and, for the sake of its use within the implemented cost functions, it is internally modified (i.e., turned into either gradient or percent)
-#' according to the user-selected cost function. The user can input a slope dataset (RasterLayer class) using the parameter 'slope'; this can prove useful
+#' according to the user-selected cost function. The user can input a slope dataset (RasterLayer class) using the parameter 'slope'; this can prove usefull
 #' in cases when the slope has to be preliminarily modified, for instance to mask out areas that cannot be crossed or to weight the slope values according
 #' to a user-defined weighting scheme.\cr
 #'
@@ -58,7 +58,7 @@
 #'
 #' \strong{Relative energetic expenditure cost function}:\cr
 #'
-#' \eqn{ tan(x*pi/180) / tan (1*pi/180) }\cr
+#' \eqn{ 1 / (tan(x*pi/180) / tan (1*pi/180)) }\cr
 #'
 #' slope-based cost function expressing change in potential energy expenditure;
 #' \strong{see} Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220;
@@ -69,14 +69,14 @@
 #'
 #' \strong{Herzog's metabolic cost function in J/(kg*m)}:\cr
 #'
-#' \eqn{ (1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64) }\cr
+#' \eqn{ 1 / ((1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)) }\cr
 #'
 #' \strong{see} Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.\cr
 #'
 #'
 #' \strong{Wheeled-vehicle critical slope cost function}:\cr
 #'
-#' \eqn{ 1 + ((tan(x*pi/180)*100) / sl.crit)^2  }\cr
+#' \eqn{ 1 / (1 + ((tan(x*pi/180)*100) / sl.crit)^2)  }\cr
 #'
 #' where \eqn{sl.crit} (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16;
 #' \strong{see} Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge. \cr
@@ -84,7 +84,7 @@
 #'
 #' \strong{Pandolf et al.'s metabolic energy expenditure cost function (in Watts)}:\cr
 #'
-#' \eqn{ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100)) }\cr
+#' \eqn{ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))) }\cr
 #'
 #' where \eqn{W} is the walker's body weight (Kg), \eqn{L} is the carried load (in Kg), \eqn{V} is the velocity in m/s, \eqn{N} is a coefficient representing ease of movement on the terrain.\cr
 #' As for the latter, suggested values available in literature are: Asphalt/blacktop=1.0; Dirt road=1.1; Grass=1.1; Light brush=1.2; Heavy brush=1.5; Swampy bog=1.8; Loose sand=2.1; Hard-packed snow=1.6; Ploughed field=1.3;
@@ -92,18 +92,24 @@
 #' For this cost function, \strong{see} Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577.\cr
 #' For the use of this cost function in a case study, \strong{see} Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press;
 #' \strong{see also} Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.\cr
-#' \strong{Note}: in the returned charts, the cost is transposed from Watts to kcal/h.\cr
+#' \strong{Note}: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).\cr
 #'
 #'
 #' \strong{Van Leusen's metabolic energy expenditure cost function (in Watts)}:\cr
 #'
-#' \eqn{ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10)  }\cr
+#' \eqn{ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10))  }\cr
 #'
 #' which modifies the Pandolf et al.'s equation; \strong{see} Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen.\cr
 #' \strong{Note} that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and
 #' unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces
 #' the value of 6 used by Van Leusen (as per Herzog 2013).\cr
-#' \strong{Note}: in the returned charts, the cost is transposed from Watts to kcal/h.\cr
+#' \strong{Note}: in the returned charts, the cost is transposed from Watts to Megawatts.\cr
+#'
+#' \strong{Note} that the walking-speed-related cost functions listed above are used as they are, while the other functions are reciprocated.
+#' This is done since "gdistance works with conductivity rather than the more usual approach using costs"; therefore
+#' "we need inverse cost functions" (Nakoinz-Knitter (2016). "Modelling Human Behaviour in Landscapes". New York: Springer, p. 183).
+#'  As a consequence, if we want to estimate time, we have to use the walking-speed functions as they are since the final accumulated values will correspond to the
+#'  reciprocal of speed, i.e. pace. In the other cases, we have to use 1/cost-function to eventually get cost-function/1.\cr
 #'
 #' When using the Tobler-related cost functions, the time unit can be selected by the user setting the 'time' parameter to 'h' (hour) or to 'm' (minutes).\cr
 #'
@@ -138,6 +144,8 @@
 #' @param V: speed in m/s (1.2 by default) (used by the Pandolf's and Van Leusen's cost function; see Details).
 #' @param moves: number of directions used when computing the accumulated cost-surface (16 by default).
 #' @param breaks: isolines interval; if no value is supplied, the interval is set by default to 1/10 of the range of values of the accumulated cost surface.
+#' @param cont.lab: if set to TRUE (default) display the labels of the contours over the accumulated cost surface.
+#' @param destin.lab: if set to TRUE (default) display the label(s) indicating the cost at the destination location(s).
 #' @param cex.breaks: set the size of the time labels used in the isochrones plot (0.6 by default).
 #' @param cex.lcp.lab: set the size of the labels used in least-cost path(s) plot (0.6 by default).
 #' @param oneplot: TRUE (default) or FALSE if the user wants or does not want the plots displayed in a single window.
@@ -168,7 +176,7 @@
 #'
 #' tobler <- moveCost(dtm=etna, origin=etna_start, destin=etna_stop, funct="t", time="h", outp="r")
 #'
-moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h", outp="r", sl.crit=10, W=70, L=0, N=1, V=1.2, moves=16, breaks=NULL, cex.breaks=0.6, cex.lcp.lab=0.6, oneplot=TRUE){
+moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h", outp="r", sl.crit=10, W=70, L=0, N=1, V=1.2, moves=16, breaks=NULL, cont.lab=TRUE, destin.lab=TRUE, cex.breaks=0.6, cex.lcp.lab=0.6, oneplot=TRUE){
 
   #calculate the terrain slope in degrees
   if(is.null(slope)==TRUE){
@@ -241,7 +249,7 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
   if(funct=="ree") {
     #relative energetic expenditure;
     # to calculate tangent of degrees (as requested by the cost function) we must first convert degrees to radians by multypling by pi/180
-    cost_function <- function(x){ tan(x*pi/180) / tan (1*pi/180) }
+    cost_function <- function(x){ 1 / (tan(x*pi/180) / tan (1*pi/180)) }
 
     #set the labels to be used within the returned plot
     main.title <- "Accumulated cost isolines around origin"
@@ -253,7 +261,7 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
   if(funct=="hrz") {
     #Herzog metabolic cost function in J/(kg*m);
     #tan(x*pi/180) turns slope from degrees to rise/run, which is requested by the cost function
-    cost_function <- function(x){(1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)}
+    cost_function <- function(x){ 1 / ((1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)) }
 
     #set the labels to be used within the returned plot
     main.title <- "Accumulated cost isolines around origin"
@@ -264,7 +272,7 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
 
   if(funct=="wcs") {
     #wheel critical slope cost function; tan(x*pi/180)*100 turns the slope from degrees to percent; the latter is requested by the cost function
-    cost_function <- function(x){ 1 + ((tan(x*pi/180)*100) / sl.crit)^2 }
+    cost_function <- function(x){ 1 / (1 + ((tan(x*pi/180)*100) / sl.crit)^2) }
 
     #set the labels to be used within the returned plot
     main.title <- "Accumulated cost isolines around origin"
@@ -276,25 +284,25 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
   if(funct=="vl") {
     #Van Leusen's metabolic energy expenditure cost function
     #note: V is velocity in m/s; tan(x*pi/180)*100 turns the slope from degrees to percent
-    cost_function <- function(x){ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10) }
+    cost_function <- function(x){ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10)) }
 
     #set the labels to be used within the returned plot
     main.title <- "Accumulated cost isolines around origin"
     sub.title <- paste0("Cost based on the Van Leusen's metabolic energy expenditure cost function \nparameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V)
-    legend.cost <- "energy expenditure cost (kcal / h)"
-    sub.title.lcp.plot <- paste0("LCP(s) and cost distance(s) based on the Van Leusen's metabolic energy expenditure cost function \n cost in kcal/h; parameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V, "\nblack dot=start location\n red dot(s)=destination location(s)")
+    legend.cost <- "energy expenditure cost (Megawatts)"
+    sub.title.lcp.plot <- paste0("LCP(s) and cost distance(s) based on the Van Leusen's metabolic energy expenditure cost function \n cost in Megawatts; parameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V, "\nblack dot=start location\n red dot(s)=destination location(s)")
   }
 
   if(funct=="p") {
     #Pandolf et al.'s metabolic energy expenditure cost function
     #note: V is velocity in m/s; tan(x*pi/180)*100 turns the slope from degrees to percent
-    cost_function <- function(x){ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100)) }
+    cost_function <- function(x){ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))) }
 
     #set the labels to be used within the returned plot
     main.title <- "Accumulated cost isolines around origin"
     sub.title <- paste0("Cost based on the Pandolf et al.'s metabolic energy expenditure cost function \nparameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V)
-    legend.cost <- "energy expenditure cost (kcal / h)"
-    sub.title.lcp.plot <- paste0("LCP(s) and cost distance(s) based on the Pandolf et al.'s metabolic energy expenditure cost function \n cost in kcal/h; parameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V, "\nblack dot=start location\n red dot(s)=destination location(s)")
+    legend.cost <- "energy expenditure cost (Megawatts)"
+    sub.title.lcp.plot <- paste0("LCP(s) and cost distance(s) based on the Pandolf et al.'s metabolic energy expenditure cost function \n cost in Megawatts; parameters: W: ", W, "; L: ", L, "; N: ", N, "; V: ", V, "\nblack dot=start location\n red dot(s)=destination location(s)")
   }
 
   #cost calculation for walking speed-based cost functions
@@ -335,9 +343,9 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
     }
   }
 
-  #if user select the Val Leusen's or the Pandolf et al.'s function, turn the cost from Watts to kcal/h
+  #if user select the Val Leusen's or the Pandolf et al.'s function, turn the cost from Watts to Megawatts
   if (funct=="vl" | funct=="p") {
-    accum_final <- accum_final * 0.859845227858985
+    accum_final <- accum_final / 1000000
   }
 
   #if no break value is entered, set the breaks to one tenth of the range of the values of the final accumulated cost surface
@@ -367,7 +375,8 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
     contour(accum_final,
             add=TRUE,
             levels=levels,
-            labcex=cex.breaks)
+            labcex=cex.breaks,
+            drawlabels = cont.lab)
     plot(origin,
          pch=20,
          add=TRUE)
@@ -380,7 +389,8 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
             sub=sub.title,
             cex.main=0.95,
             cex.sub=0.75,
-            labcex=cex.breaks)
+            labcex=cex.breaks,
+            drawlabels = cont.lab)
     plot(origin,
          pch=20,
          add=TRUE)
@@ -420,15 +430,17 @@ moveCost <- function (dtm, slope=NULL, origin, destin=NULL, funct="t", time="h",
     #extract the cost from the accum_final to the destination location(s), appending the data to a new column
     destin$cost <- extract(accum_final, destin)
 
-    #add the point(s)'s labels
+    #if destin.lab is TRUE, add the point(s)'s labels
+    if(destin.lab==TRUE){
     text(coordinates(destin),
          labels=round(destin$cost,2),
          pos = 4,
          cex=cex.lcp.lab)
+    }
 
   } else {
     sPath=NULL
-    dest.loc.w.walking.time=NULL
+    dest.loc.w.cost=NULL
   }
 
   #restore the original graphical device's settings if previously modified

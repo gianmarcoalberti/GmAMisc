@@ -6,8 +6,9 @@
 \usage{
 moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
   time = "h", outp = "r", sl.crit = 10, W = 70, L = 0, N = 1,
-  V = 1.2, moves = 16, breaks = NULL, cex.breaks = 0.6,
-  cex.lcp.lab = 0.6, oneplot = TRUE)
+  V = 1.2, moves = 16, breaks = NULL, cont.lab = TRUE,
+  destin.lab = TRUE, cex.breaks = 0.6, cex.lcp.lab = 0.6,
+  oneplot = TRUE)
 }
 \arguments{
 \item{dtm:}{digital terrain model (RasterLayer class).}
@@ -42,6 +43,10 @@ moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
 
 \item{breaks:}{isolines interval; if no value is supplied, the interval is set by default to 1/10 of the range of values of the accumulated cost surface.}
 
+\item{cont.lab:}{if set to TRUE (default) display the labels of the contours over the accumulated cost surface.}
+
+\item{destin.lab:}{if set to TRUE (default) display the label(s) indicating the cost at the destination location(s).}
+
 \item{cex.breaks:}{set the size of the time labels used in the isochrones plot (0.6 by default).}
 
 \item{cex.lcp.lab:}{set the size of the labels used in least-cost path(s) plot (0.6 by default).}
@@ -50,7 +55,7 @@ moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
 }
 \description{
 The function provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward
-one or multiple destinations. It implements different cost estimations directly or inderectly related to human movement across the landscape.
+one or multiple destinations. It implements different cost estimations related to human movement across the landscape.
 The function takes as input a Digital Terrain Model (RasterLayer class) and a point feature (SpatialPointsDataFrame class), the latter representing
 the starting location, i.e. the location from which the accumulated cost is calculated. \cr
 }
@@ -66,7 +71,7 @@ The number of movements can be optionally set by the user via the 'moves' parame
 
 The slope is internally calculated by the function using the 'terrain()' function out of the 'raster' package, using 8 neighbors.
 The slope is calculated in degrees and, for the sake of its use within the implemented cost functions, it is internally modified (i.e., turned into either gradient or percent)
-according to the user-selected cost function. The user can input a slope dataset (RasterLayer class) using the parameter 'slope'; this can prove useful
+according to the user-selected cost function. The user can input a slope dataset (RasterLayer class) using the parameter 'slope'; this can prove usefull
 in cases when the slope has to be preliminarily modified, for instance to mask out areas that cannot be crossed or to weight the slope values according
 to a user-defined weighting scheme.\cr
 
@@ -103,7 +108,7 @@ to turn it into kmh for consistency with the other Tobler-related cost functions
 
 \strong{Relative energetic expenditure cost function}:\cr
 
-\eqn{ tan(x*pi/180) / tan (1*pi/180) }\cr
+\eqn{ 1 / (tan(x*pi/180) / tan (1*pi/180)) }\cr
 
 slope-based cost function expressing change in potential energy expenditure;
 \strong{see} Conolly, J., & Lake, M. (2006). Geographic Information Systems in Archaeology. Cambridge: Cambridge University Press, p. 220;
@@ -113,20 +118,20 @@ Canada. Journal of Field Archaeology, 41(6), 684–698. https://doi.org/10.1080/
 
 \strong{Herzog's metabolic cost function in J/(kg*m)}:\cr
 
-\eqn{ (1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64) }\cr
+\eqn{ 1 / ((1337.8 * tan(x*pi/180)^6 + 278.19 * tan(x*pi/180)^5 - 517.39 * tan(x*pi/180)^4 - 78.199 * tan(x*pi/180)^3 + 93.419 * tan(x*pi/180)^2 + 19.825 * tan(x*pi/180) + 1.64)) }\cr
 
 \strong{see} Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge.\cr
 
 \strong{Wheeled-vehicle critical slope cost function}:\cr
 
-\eqn{ 1 + ((tan(x*pi/180)*100) / sl.crit)^2  }\cr
+\eqn{ 1 / (1 + ((tan(x*pi/180)*100) / sl.crit)^2)  }\cr
 
 where \eqn{sl.crit} (=critical slope, in percent) is "the transition where switchbacks become more effective than direct uphill or downhill paths" and typically is in the range 8-16;
 \strong{see} Herzog, I. (2016). Potential and Limits of Optimal Path Analysis. In A. Bevan & M. Lake (Eds.), Computational Approaches to Archaeological Spaces (pp. 179–211). New York: Routledge. \cr
 
 \strong{Pandolf et al.'s metabolic energy expenditure cost function (in Watts)}:\cr
 
-\eqn{ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100)) }\cr
+\eqn{ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))) }\cr
 
 where \eqn{W} is the walker's body weight (Kg), \eqn{L} is the carried load (in Kg), \eqn{V} is the velocity in m/s, \eqn{N} is a coefficient representing ease of movement on the terrain.\cr
 As for the latter, suggested values available in literature are: Asphalt/blacktop=1.0; Dirt road=1.1; Grass=1.1; Light brush=1.2; Heavy brush=1.5; Swampy bog=1.8; Loose sand=2.1; Hard-packed snow=1.6; Ploughed field=1.3;
@@ -134,17 +139,23 @@ As for the latter, suggested values available in literature are: Asphalt/blackto
 For this cost function, \strong{see} Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577.\cr
 For the use of this cost function in a case study, \strong{see} Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press;
 \strong{see also} Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.\cr
-\strong{Note}: in the returned charts, the cost is transposed from Watts to kcal/h.\cr
+\strong{Note}: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).\cr
 
 \strong{Van Leusen's metabolic energy expenditure cost function (in Watts)}:\cr
 
-\eqn{ 1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10)  }\cr
+\eqn{ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10))  }\cr
 
 which modifies the Pandolf et al.'s equation; \strong{see} Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen.\cr
 \strong{Note} that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and
 unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces
 the value of 6 used by Van Leusen (as per Herzog 2013).\cr
-\strong{Note}: in the returned charts, the cost is transposed from Watts to kcal/h.\cr
+\strong{Note}: in the returned charts, the cost is transposed from Watts to Megawatts.\cr
+
+\strong{Note} that the walking-speed-related cost functions listed above are used as they are, while the other functions are reciprocated.
+This is done since "gdistance works with conductivity rather than the more usual approach using costs"; therefore
+"we need inverse cost functions" (Nakoinz-Knitter (2016). "Modelling Human Behaviour in Landscapes". New York: Springer, p. 183).
+ As a consequence, if we want to estimate time, we have to use the walking-speed functions as they are since the final accumulated values will correspond to the
+ reciprocal of speed, i.e. pace. In the other cases, we have to use 1/cost-function to eventually get cost-function/1.\cr
 
 When using the Tobler-related cost functions, the time unit can be selected by the user setting the 'time' parameter to 'h' (hour) or to 'm' (minutes).\cr
 
