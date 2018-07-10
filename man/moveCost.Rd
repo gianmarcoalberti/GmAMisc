@@ -2,13 +2,13 @@
 % Please edit documentation in R/moveCost.R
 \name{moveCost}
 \alias{moveCost}
-\title{R function for calculating accumulated cost of movement across the terrain and least-cost paths from an origin.}
+\title{R function for calculating accumulated cost of movement across the terrain and least-cost paths from an origin}
 \usage{
 moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
   time = "h", outp = "r", sl.crit = 10, W = 70, L = 0, N = 1,
   V = 1.2, moves = 16, breaks = NULL, cont.lab = TRUE,
   destin.lab = TRUE, cex.breaks = 0.6, cex.lcp.lab = 0.6,
-  oneplot = TRUE)
+  oneplot = TRUE, export = FALSE)
 }
 \arguments{
 \item{dtm:}{digital terrain model (RasterLayer class).}
@@ -21,7 +21,7 @@ moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
 
 \item{funct:}{cost function to be used: \strong{t} (default) uses the on-path Tobler's hiking function; \strong{tofp} uses the off-path Tobler's hiking function; \strong{mt} uses the modified Tobler's function;
 \strong{ic} uses the Irmischer-Clarke's modified Tobler's hiking function (on-path); \strong{icofp} uses the Irmischer-Clarke's modified Tobler's hiking function (off-path);
-\strong{ree} uses the relative energetic expenditure cost function; \strong{hrz} uses the Herzog's metabolic cost function; \strong{wcs} uses the wheeled-vehicle critical slope cost function;
+ \strong{ug} uses the Uriarte González's slope-dependant walking-time cost function; \strong{ree} uses the relative energetic expenditure cost function; \strong{hrz} uses the Herzog's metabolic cost function; \strong{wcs} uses the wheeled-vehicle critical slope cost function;
 \strong{p} uses the Pandolf et al.'s metabolic energy expenditure cost function; \strong{vl} uses the Van Leusen's metabolic energy expenditure cost function (see Details).}
 
 \item{time:}{time-unit expressed by the accumulated raster and by the isolines if Tobler's and Tobler-related cost functions are used;
@@ -52,16 +52,20 @@ moveCost(dtm, slope = NULL, origin, destin = NULL, funct = "t",
 \item{cex.lcp.lab:}{set the size of the labels used in least-cost path(s) plot (0.6 by default).}
 
 \item{oneplot:}{TRUE (default) or FALSE if the user wants or does not want the plots displayed in a single window.}
+
+\item{export:}{TRUE or FALSE (default) if the user wants or does not want the outputs to be exported; if TRUE, the accumulated cost surface will be
+exported as a GeoTiff file, while the isolines and the least-cost path(s) will be exported as shapefile; all the exported files will bear a suffix corresponding
+to the cost function selected by the user.}
 }
 \description{
 The function provides the facility to calculate the accumulated cost of movement around a starting location and to optionally calculate least-cost paths toward
 one or multiple destinations. It implements different cost estimations related to human movement across the landscape.
-The function takes as input a Digital Terrain Model (RasterLayer class) and a point feature (SpatialPointsDataFrame class), the latter representing
+The function takes as input a Digital Terrain Model ('RasterLayer' class) and a point feature ('SpatialPointsDataFrame' class), the latter representing
 the starting location, i.e. the location from which the accumulated cost is calculated. \cr
 }
 \details{
-If the parameter 'destin' is fed with a dataset representing destination location(s) (SpatialPointsDataFrame class), the function will also calculate
-least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable 'length' stored in the 'LCPs' dataset (SpatialLines class) returned by the function.
+If the parameter 'destin' is fed with a dataset representing destination location(s) ('SpatialPointsDataFrame' class), the function will also calculate
+least-cost path(s) plotted on the input DTM; the length of each path will be saved under the variable 'length' stored in the 'LCPs' dataset ('SpatialLines' class) returned by the function.
 The red dot(s) representing the destination location(s) will be labelled with numeric values representing
 the cost value at the location(s). The cost value will be also appended to the updated destination dataset returned by the function and
 storing a new variable named 'cost'.\cr
@@ -106,6 +110,18 @@ to turn it into kmh for consistency with the other Tobler-related cost functions
 
 \eqn{ (0.11 + 0.67 * exp(-(tan(x*pi/180)*100 + 2)^2 / (2 * 30)^2)) * 3.6 }\cr
 
+\strong{Uriarte González's slope-dependant walking-time cost function}:\cr
+
+\eqn{ 1/ (0.0277 * (tan(x*pi/180)*100) + 0.6115) }\cr
+
+proposed by Uriarte González;
+\strong{see}: Chapa Brunet, T., García, J., Mayoral Herrera, V., & Uriarte González, A. (2008). GIS landscape models for the study of preindustrial settlement patterns in Mediterranean areas.
+In Geoinformation Technologies for Geo-Cultural Landscapes (pp. 255–273). CRC Press. https://doi.org/10.1201/9780203881613.ch12.\cr
+The cost function is originally expressed in seconds; for the purpose of its implementation in this function, it is the reciprocal of time (1/T) that is used in order to eventually get
+T/1. Also, originally the slope is in percent: \eqn{tan(x*pi/180)*100} turns the slope from degrees to percent (=rise/run*100).
+Unlike the original cost function, here the pixel resolution is not taken into account since 'gdistance' takes care of the cells' dimension
+when calculating accumulated costs.
+
 \strong{Relative energetic expenditure cost function}:\cr
 
 \eqn{ 1 / (tan(x*pi/180) / tan (1*pi/180)) }\cr
@@ -134,11 +150,15 @@ where \eqn{sl.crit} (=critical slope, in percent) is "the transition where switc
 \eqn{ 1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100))) }\cr
 
 where \eqn{W} is the walker's body weight (Kg), \eqn{L} is the carried load (in Kg), \eqn{V} is the velocity in m/s, \eqn{N} is a coefficient representing ease of movement on the terrain.\cr
+
 As for the latter, suggested values available in literature are: Asphalt/blacktop=1.0; Dirt road=1.1; Grass=1.1; Light brush=1.2; Heavy brush=1.5; Swampy bog=1.8; Loose sand=2.1; Hard-packed snow=1.6; Ploughed field=1.3;
 \strong{see} de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4.\cr
+
 For this cost function, \strong{see} Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577.\cr
+
 For the use of this cost function in a case study, \strong{see} Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press;
 \strong{see also} Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references.\cr
+
 \strong{Note}: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).\cr
 
 \strong{Van Leusen's metabolic energy expenditure cost function (in Watts)}:\cr
@@ -163,7 +183,7 @@ In general, the user can also select which type of visualization the function ha
 or to 'c' (=contours). The former will produce a raster image with a colour scale and contour lines representing the accumulated cost surface; the latter parameter will only
 produce contour lines.\cr
 
-The contour lines' interval is set using the parameter 'breaks'; is not value is passed to the parameter, the interval will be set by default to
+The contour lines' interval is set using the parameter 'breaks'; if no value is passed to the parameter, the interval will be set by default to
 1/10 of the range of values of the accumulated cost surface.\cr
 
 The function returns a list storing:\cr

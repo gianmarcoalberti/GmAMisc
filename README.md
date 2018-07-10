@@ -1,5 +1,5 @@
 # GmAMisc (Gianmarco Alberti Miscellaneous)
-vers 0.23
+vers 0.24
 
 `GmAMisc` is a collection of functions that I have built in different points in time. The functions' aim spans from univariate outlier detection, to permutation t test, permutation chi-square test, calculation of Brainerd-Robinson similarity coefficient, validation of logistic regression models, point pattern analysis, and more. 
 
@@ -60,12 +60,14 @@ The package comes with some toy datasets:
 ## List of implemented functions
 * `Aindex()`: function for calculating the Hodder-Okell's A index of spatial association.
 * `aucadj()`: function for optimism-adjusted AUC (Logistic Regression internal validation).
-* `BRsim()`: function for Brainerd-Robinson simiarity coefficient.
+* `BRsim()`: function for Brainerd-Robinson similarity coefficient (and optional clustering).
 * `chiperm()`: function for permutation-based chi-square test of independence.
 * `distCovarModel()`: function to model (and test) the dependence of a point pattern on the distance to another pattern.
 * `distRandCum()`: function to test the significance of the spatial relationship between two features in terms of the cumulative distribution of minimum distances.
 * `distRandSign()`: function to test the significance of the spatial relationship between two features (points-to-points, points-to-lines, points-to-polygons).
 * `featClust()`: function for features clustering on the basis of distances/area.
+* `impRst()`: function to easily import a raster dataset into R.
+* `impShp()`: function to easily import a vectorial dataset (shapefile) into R.
 * `kwPlot()`: function for visually displaying Kruskal-Wallis test's results.
 * `landfClass()`: function for landform classification on the basis od Topographic Position Index.
 * `logregr()`: function easy binary Logistic Regression and model diagnostics.
@@ -86,6 +88,7 @@ The package comes with some toy datasets:
 * `resc.val()`: function to rescale the values of a datset between a minimum and a maximum set by the user.
 * `robustBAplot()`: function to plot a robust version of the Bland-Altman plot.
 * `vislim()`: function for computing the limit of visibility of an object given its height.
+* `windAver()`: function for averaging wind speed and direction.
 
 <br>
 
@@ -115,13 +118,39 @@ At the bottom of the chart, the apparent AUC (i.e., the value deriving from the 
 
 <br>
 
-`BRsim()`: function for Brainerd-Robinson simiarity coefficient. The function allows to calculate the Brainerd-Robinson similarity coefficient, taking as input a cross-tabulation (dataframe).
-The function will return:
-* a) a correlation matrix in tabular form;
-* b) a heat-map representing, in a graphical form, the aforementioned correlation matrix.
-In the heat-map (which is built using the 'corrplot' package), the size and the color of the squares are proportional to the Brainerd-Robinson coefficients, which are also reported by numbers.
+`BRsim()`: allows to calculate the Brainerd-Robinson similarity coefficient, taking as input a cross-tabulation (dataframe), and to optionally
+perform an agglomerative hierarchical clustering.
+
+The function returns produces a correlation matrix in tabular form and a heat-map representing, in a graphical form, the aforementioned correlation matrix.
+
+In the heat-map (which is built using the `corrplot` package), the size and the color of the squares are proportional to the Brainerd-Robinson coefficients, which are also reported by numbers.
 
 In order to "penalize" BR similarity coefficient(s) arising from assemblages with unshared categories, the function does what follows: it divides the BR coefficient(s) by the number of unshared categories plus 0.5. The latter addition is simply a means to be still able to penalize coefficient(s) arising from assemblages having just one unshared category. Also note that joint absences will have no weight on the penalization of the coefficient(s). In case of assemblages sharing all their categories, the corrected coefficient(s) turns out to be equal to the uncorrected one.
+
+By setting the parameter `clust` to `TRUE`, the units for which the BR coefficients have been calculated will be clustered.
+Notice that the clustering is based on a dissimilarity matrix which is internally calculated as the maximum values of the BR coefficient (i.e., 200 for the normal values, 1 for the rescales values) minus the BR coefficient. This allows a simpler reading of the dendrogram which is produced by the function, where the less dissimilar (i.e., more similar) units will be placed at lower levels, while more dissimilar (i.e., less similar) units will be placed at higher levels within the dendrogram.
+
+The latter depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition. Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution.
+
+As for the latter, if the parameter `part` is left empty (default), an optimal cluster solution is obtained. The optimal partition is selected via an iterative procedure which locates at which cluster solution the highest average silhouette width is achieved. If a user-defined partition is needed, the user can input the desired number of clusters using the parameter `part`. In either case, an additional plot is returned besides the cluster dendrogram and the silhouette plot; it displays a scatterplot in which the cluster solution (x-axis) is plotted against the average silhouette width (y-axis). A black dot represent the partition selected either by the iterative procedure or by the user.
+
+Notice that in the silhouette plot, the labels on the left-hand side of the chart show the units' names and the cluster number to which each unit is closer.
+
+The silhouette plot is obtained from the 'silhouette()' function out from the `cluster` package (https://cran.r-project.org/web/packages/cluster/index.html).
+
+For a detailed description of the silhouette plot, its rationale, and its interpretation, see:
+Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257).
+
+The function also provides a Cleveland's dot plots that represent by-cluster proportions. The clustered units are grouped according to their cluster membership, the frequencies are summed, and then expressed as percentages. The latter are represented by the dot plots, along with the average percentage. The latter provides a frame of reference to understand which percentage is below, above, or close to the average. The raw data on which the plots are based are stored within the list returned by the function (see below).
+
+The function also returns a list storing the following:
+
+* `$BR_similarity_matrix`: similarity matrix showing the BR coefficients;
+* `$BR_distance_matrix`: dissimilarity matrix on which the hierarchical clustering is performed (if selected);
+* `$avr.silh.width.by.n.of.clusters`: average silhouette width by number of clusters  (if clustering is selected);
+* `$partition.silh.data`: silhouette data for the selected partition (if clustering is selected);
+* `$data.w.cluster.membership`: copy of the input data table with an additional column storing the cluster membership for each row (if clustering is selected);
+* `$by.cluster.proportion`: data table showing the proportion of column categories across each cluster; rows sum to 100 percent (if clustering is selected).
 
 <br>
 
@@ -146,13 +175,13 @@ The function returns a 4 plots, which can be arranged in just one visualization 
 Setting the parameter Foxall to TRUE, the third plot will be replaced by the chart of the Foxall's J function, which is another "useful statistic" when the covariate is the distance to a spatial pattern (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187, 282-284). Values of J are uqual to 1 when the two patterns are independent random patterns; values <1 indicate that the input point pattern tends to be closer to the cov.var pattern than expected for random points); values >1 indicate that the input point pattern avoid the cov.var pattern, i.e. the point pattern is more likely than random points to lie far away from the cov.var pattern (see Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 284).
 
 A list is also returned, containing what follows:
-* $H0-model: info and relevant statistics regarding the Null Model;
-* $H1-model: info and relevant statistics regarding the Alternative Model;
-* $Model comparison (LRT): results of the Likelihood Ratio test;
-* $AIC-H0: AIC of the Null Model;
-* $AIC-H1: AIC of the Atlernative Model;
-* $KS test: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
-* $AUC: the AUC statistics.
+* `$H0-model`: info and relevant statistics regarding the Null Model;
+* `$H1-model`: info and relevant statistics regarding the Alternative Model;
+* `$Model comparison (LRT)`: results of the Likelihood Ratio test;
+* `$AIC-H0`: AIC of the Null Model;
+* `$AIC-H1`: AIC of the Atlernative Model;
+* `$KS test`: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
+* `$AUC`: the AUC statistics.
 
 <br>
 
@@ -193,16 +222,16 @@ If both the from-feature and the to-feature are of point type (SpatialPointsData
 The function produces a histogram showing: the distribution of randomized average minimum distances; a black dot indicating the observed average minimum distance; a hollow dot representing the average of the randomized minimum distances; two blue reference lines correspond to the 0.025th and to the 0.975th quantile of the randomized distribution. P-values are reported at the bottom of the plot. In case both the from- and the to- feature are of point type, another histogram is produced, which provides the same information of the preceding histogram, but derived from the permutation-based routine that has been detailed above.
 
 A list is also returned, containing what follows:
-* $from.feat.min.dist: distance of each entity of the from-feature to the nearest entity of the to-feature;
-* $avrg.obs.min.dist: observed average minimum distance;
-* $avrg.rnd.min.dist: average randomized minimum distance;
-* $avrg.perm.min.dist: average permuted minimum distance (returned only when both the from- and to- features are of point type);
-* $p.value closer than expected-rnd-;
-* $p.value closer than expected-perm- (returned only when both the from- and to- features are of point type);
-* $p.value more distant than expected-rnd-;
-* $p.value more distant than expected-perm- (returned only when both the from- and to- features are of point type);
-* $p.value different from random-rnd-;
-* $p.value different from random-perm- (returned only when both the from- and to- features are of point type).
+* `$from.feat.min.dist`: distance of each entity of the from-feature to the nearest entity of the to-feature;
+* `$avrg.obs.min.dist`: observed average minimum distance;
+* `$avrg.rnd.min.dist`: average randomized minimum distance;
+* `$avrg.perm.min.dist`: average permuted minimum distance (returned only when both the from- and to- features are of point type);
+* `$p.value closer than expected-rnd-`;
+* `$p.value closer than expected-perm-` (returned only when both the from- and to- features are of point type);
+* `$p.value more distant than expected-rnd-`;
+* `$p.value more distant than expected-perm-` (returned only when both the from- and to- features are of point type);
+* `$p.value different from random-rnd-`;
+* `$p.value different from random-perm-` (returned only when both the from- and to- features are of point type).
 
 <br>
 
@@ -229,6 +258,16 @@ The function also returns a list storing the following:
 * `$coord.or.area.or.min.dist.by.clust`: coordinates, area, or distance to the nearest to.feat coupled with cluster membership;
 * `$dist.stats.by.cluster`: by-cluster summary statistics of the x feature distance to the nearest to.feature;
 * `$dataset`: the input dataset with two variables added ($feat_ID and $clust, the latter storing the cluster membership).
+
+<br>
+
+`impRst()`: the function is a wrapper for the `raster()` function out of the `raster` package. It provides the facility to import
+a raster dataset (`RasterLayer` class) by means of a window that allows the user to navigate through the computer's folders and to select the appropriate file.
+
+<br>
+
+`impShp()`:  the function is a wrapper for the `shapefile()` function out of the `raster` package. It provides the facility to import
+a vectorial dataset (of shapefile type) by means of a window that allows the user to navigate through the computer's folders and to select the appropriate file.
 
 <br>
 
@@ -292,11 +331,11 @@ The function returns:
 * a chart with boxplots representing the fitting and the validation distribution of the AUC value across the selected iterations; for an example of the interpretation of the chart, see the aforementioned article, especially page 390-91;
 * a chart of the levels of the dependent variable plotted against the predicted probabilities (if the model has a high discriminatory power, the two stripes of points will tend to be well separated, i.e. the positive outcome of the dependent variable will tend to cluster around high values of the predicted probability, while the opposite will hold true for the negative outcome of the dependent variable);
 * a list containing:
-  + $overall.model.significance: statistics related to the overall model p-value and to its distribution across the selected iterations;
-  + $parameters.stability: statistics related to the stability of the estimated coefficients across the selected iterations;
-  + $p.values.stability: statistics related to the stability of the estimated p-values across the selected iterations;
-  + $AUCstatistics: statistics about the fitting and validation AUC distribution;
-  + $Hosmer-Lemeshow statistics: statistics about the fitting and validation distribution of the HL test p-values.
+  + `$overall.model.significance`: statistics related to the overall model p-value and to its distribution across the selected iterations;
+  + `$parameters.stability`: statistics related to the stability of the estimated coefficients across the selected iterations;
+  + `$p.values.stability`: statistics related to the stability of the estimated p-values across the selected iterations;
+  + `$AUCstatistics`: statistics about the fitting and validation AUC distribution;
+  + `$Hosmer-Lemeshow statistics`: statistics about the fitting and validation distribution of the HL test p-values.
 
 As for the abovementioned statistics:
 * full: statistic estimated on the full dataset;
@@ -363,6 +402,13 @@ modified version of the Tobler's function as proposed for (male) on-path hiking 
 `(0.11 + 0.67 * exp(-(tan(x*pi/180)*100 + 2)^2 / (2 * 30)^2)) * 3.6`
 
 
+* Uriarte González's slope-dependant walking-time cost function:
+
+`1/ (0.0277 * (tan(x*pi/180)*100) + 0.6115)`
+
+proposed by Uriarte González; **see**: Chapa Brunet, T., García, J., Mayoral Herrera, V., & Uriarte González, A. (2008). GIS landscape models for the study of preindustrial settlement patterns in Mediterranean areas. In Geoinformation Technologies for Geo-Cultural Landscapes (pp. 255–273). CRC Press. https://doi.org/10.1201/9780203881613.ch12. The cost function is originally expressed in seconds; for the purpose of its implementation in this function, it is the reciprocal of time (1/T) that is used in order to eventually get T/1. Also, originally the slope is in percent: `tan(x*pi/180)*100` turns the slope from degrees to percent (=rise/run*100). Unlike the original cost function, here the pixel resolution is not taken into account since `gdistance` takes care of the cells' dimension when calculating accumulated costs.
+
+
 * Relative energetic expenditure cost function:
 
 `1 / (tan(x*pi/180) / tan (1*pi/180))`
@@ -388,14 +434,18 @@ where `sl.crit` (=critical slope, in percent) is "the transition where switchbac
 
 `1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100)))`
 
-where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; **see** de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. For this cost function, **see** Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. For the use of this cost function in a case study, **see** Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; **see also** Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references. **Note**: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).
+where `W` is the walker's body weight (Kg), `L` is the carried load (in Kg), `V` is the velocity in m/s, `N` is a coefficient representing ease of movement on the terrain. As for the latter, suggested values available in literature are: `Asphalt/blacktop=1.0`; `Dirt road=1.1`; `Grass=1.1`; `Light brush=1.2`; `Heavy brush=1.5`; `Swampy bog=1.8`; `Loose sand=2.1`; `Hard-packed snow=1.6`; `Ploughed field=1.3`; **see** de Gruchy, M., Caswell, E., & Edwards, J. (2017). Velocity-Based Terrain Coefficients for Time-Based Models of Human Movement. Internet Archaeology, 45(45). https://doi.org/10.11141/ia.45.4. 
+
+For this cost function, **see** Pandolf, K. B., Givoni, B., & Goldman, R. F. (1977). Predicting energy expenditure with loads while standing or walking very slowly. Journal of Applied Physiology, 43(4), 577–581. https://doi.org/10.1152/jappl.1977.43.4.577. For the use of this cost function in a case study, **see** Rademaker, K., Reid, D. A., & Bromley, G. R. M. (2012). Connecting the Dots: Least Cost Analysis, Paleogeography, and the Search for Paleoindian Sites in Southern Highland Peru. In D. A. White & S. L. Surface-Evans (Eds.), Least Cost Analysis of Social Landscapes. Archaeological Case Studies (pp. 32–45). University of Utah Press; **see also** Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) with references. 
+
+**Note**: in the returned charts, the cost is transposed from Watts to Megawatts (see, e.g., Rademaker et al 2012 cited above).
 
 
 * Van Leusen's metabolic energy expenditure cost function (in Watts):
 
 `1 / (1.5 * W + 2.0 * (W + L) * (L / W)^2 + N * (W + L) * (1.5 * V^2 + 0.35 * V * (tan(x*pi/180)*100) + 10))`
 
-which modifies the Pandolf et al.'s equation; see Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. **Note** that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces the value of 6 used by Van Leusen (as per Herzog 2013). **Note**: in the returned charts, the cost is transposed from Watts to Megawatts.
+which modifies the Pandolf et al.'s equation; **see** Van Leusen, P. M. (2002). Pattern to process: methodological investigations into the formation and interpretation of spatial patterns in archaeological landscapes. University of Groningen. **Note** that, as per Herzog, I. (2013). Least-cost Paths - Some Methodological Issues, Internet Archaeology 36 (http://intarch.ac.uk/journal/issue36/index.html) and unlike Van Leusen (2002), in the above equation slope is expressed in percent and speed in m/s; also, in the last bit of the equantion, 10 replaces the value of 6 used by Van Leusen (as per Herzog 2013). **Note**: in the returned charts, the cost is transposed from Watts to Megawatts.
 
 **Note** that the walking-speed-related cost functions listed above are used as they are, while the other functions are reciprocated.
 This is done since "gdistance works with conductivity rather than the more usual approach using costs"; therefore
@@ -406,7 +456,7 @@ When using the Tobler-related cost functions, the time unit can be selected by t
 
 In general, the user can also select which type of visualization the function has to produce; this is achieved setting the `outp` parameter to either `r` (=raster) or to `c` (=contours). The former will produce a raster image with a colour scale and contour lines representing the accumulated cost surface; the latter parameter will only produce contour lines.
 
-The contour lines' interval is set using the parameter `breaks`; is not value is passed to the parameter, the interval will be set by default to
+The contour lines' interval is set using the parameter `breaks`; if no value is passed to the parameter, the interval will be set by default to
 1/10 of the range of values of the accumulated cost surface.
 
 The function returns a list storing:
@@ -427,17 +477,17 @@ The function may also return a density plot (coupled with a rug plot at the bott
 
 <br>
 
-`NNa()`: futhe function allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect). It also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. Significance is assessed via a randomized approach. 
+`NNa()`: allows to perform the Nearest Neighbor analysis of point patterns to formally test for the presence of a clustered, dispersed, or random spatial arrangement (second-order effect). It also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class. Significance is assessed via a randomized approach. 
 
 The function uses a randomized approach to test the significance of the Clark-Evans R statistic: the observed R value is set against the distribution of R values computed across B iterations (199 by default) in which a set of random points (with a sample size equal to the number of points of the input feature) is drawn and the statistic recomputed. The function produces a histogram of the randomized R values, with a black dot indicating the observed value and a hollow dot representing the average of the randomized R values. P-values (computed following Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, p. 387), are reported at the bottom of the same chart. Two reference lines represent the two tails of the randomized distribution (left tail, indicating a significant clustered pattern; right tail, indicating a significant dispersed pattern).
 
 The function also returns a list storing the following:
-* $obs.NN.dist: observed NN distances;
-* $obs.R: observed R value;
-* $aver.rand.R: average randomized R;
-* $p.value clustered: p-value for a clustered pattern;
-* $p.value.dispersed: p-value for a dispersed pattern;
-* $p.value.diff.from.random: p-value for a pattern different from random.
+* `$obs.NN.dist`: observed NN distances;
+* `$obs.R`: observed R value;
+* `$aver.rand.R`: average randomized R;
+* `$p.value clustered`: p-value for a clustered pattern;
+* `$p.value.dispersed`: p-value for a dispersed pattern;
+* `$p.value.diff.from.random`: p-value for a pattern different from random.
 
 <br>
 
@@ -479,13 +529,13 @@ The function returns a 4 plots, which can be arranged in just one visualization 
 * plot of the ROC curve, which help assessing the strenght of the dependence on the covariate (Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 187-188).
 
 A list is also returned, containing what follows:
-* $H0-model: info and relevant statistics regarding the Null Model;
-* $H1-model: info and relevant statistics regarding the Alternative Model;
-* $Model comparison (LRT): results of the Likelihood Ratio test;
-* $AIC-H0: AIC of the Null Model;
-* $AIC-H1: AIC of the Atlernative Model;
-* $KS test: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
-* AUC: the AUC statistics.
+* `$H0-model`: info and relevant statistics regarding the Null Model;
+* `$H1-mode`l: info and relevant statistics regarding the Alternative Model;
+* `$Model comparison (LRT)`: results of the Likelihood Ratio test;
+* `$AIC-H0`: AIC of the Null Model;
+* `$AIC-H1`: AIC of the Atlernative Model;
+* `$KS test`: information regarding the cumulative distribution comparison via Kolmogorov-Smirnov test;
+* `AUC`: the AUC statistics.
 
 <br>
 
@@ -532,10 +582,13 @@ For scenario `b` the function returns a plot showing the polygons plus the dots;
 <br>
 
 `prob.phases.relat()`: function to calculate the Posterior Probability for different chronological relations between two Bayesian radiocarbon phases. The function allows to calculate the posterior probability for different chronological relations between two phases defined via Bayesian radiocarbon modeling. For the results to make sense, the phases have to be defined as independent if one wishes to assess what is the posterior probability for different relative chronological relations between them.
+
 The rationale for this approach is made clear in an article by Buck et al 1992 (https://doi.org/10.1016/0305-4403(92)90025-X), and it runs as follows: *if we do not make any assumption about the relationship between the phases, can we test how likely they are to be in any given order*?
 
-The function takes as input the table provided by the 'OxCal' program as result of the 'Order' query. Once the table as been saved from 'OxCal' in .csv format, you have to feed it in R. A .csv file can be imported into R using (for instance): `mydata <- read.table(file.choose(), header=TRUE, sep=",", dec=".", as.is=T)`
-Make sure to insert the phases' parameters (i.e., the starting and ending boundaries of the two phases) in the OxCal's Order query in the following order: StartA, EndA, StartB, EndB. That is, first the start and end of your first phase, then the start and end of the second one. You can give any name to your phases, as long as the order is like the one described.
+Data can be fed into the function in two ways:
+* the function takes as input the table provided by the 'OxCal' program  as result of the 'Order' query. Once the table as been saved from 'OxCal' in .csv format, you have to feed it in R. A .csv file can be imported into R using (for instance): `mydata <- read.table(file.choose(), header=TRUE, sep=",", dec=".", as.is=T)`; be sure to insert the phases' parameters (i.e., the starting and ending boundaries of the two phases) in the OxCal's Order query in the following order: `StartA`, `EndA`, `StartB`, `EndB`; that is, first the start and end of your first phase, then the start and end of the second one; you can give any name to your phases, as long as the order is like the one described.
+
+* alternatively, 8 relevant parameters (which can be read off from the Oxcal's Order query output) can be manually fed into the function (see the Arguments section for details).
 
 Given two phases A and B, the function allows to calculate the posterior probability for:
 * A being within B
@@ -555,9 +608,11 @@ Thanks are due to Dr. Andrew Millard (Durham University) for the help provided i
 
 <br>
 
-`refNNa()`: allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance, along with an acceptance interval (with significance level equal to 0.05; sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) based on B (set to 200 by default) realizations of a Complete Spatial Random process. The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of RasterLayer class.
+`refNNa()`: allows to perform the refined Nearest Neighbor analysis of point patterns by plotting the cumulative Nearest Neighbour distance, along with an acceptance interval (with significance level equal to 0.05; sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) based on B (set to 200 by default) realizations of a Complete Spatial Random process. The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis. The covariate must be of `RasterLayer` class.
 
 The function uses a randomized approach to build the mentioned acceptance interval, whereby cumulative distributions of average NN distances of random points are computed across B iterations. In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.
+
+Thanks are due to Dason Kurkiewicz for the help provided in writing the code to calculate the acceptance interval.
 
 <br>
 
@@ -578,7 +633,46 @@ The function returns:
 
 <br>
 
+`windAver()`: provides the facility to average wind speed and direction data stored in two or more rasters (`RasterLayer` class). Of course, the input rasters must have the same extent, resolution, and coordinate system. The wind and direction rasters must be fed into the function as a vector storing the rasters' name. The wind direction data are averaged by first computing the u and v components, then averaging them separately, and eventually converting them back to degrees.
+
+The u component is derived using the following formula:
+
+`-x * sin(2 * pi * y / 360)`
+
+where x and y are the wind speed and directions respectively;
+
+the v component is derived using the following formula:
+
+`-x * cos(2 * pi * y / 360)`
+
+After being averaged, the averaged u and v components are converted back to degrees using the formula below:
+
+`(atan2(mean.u.comp, mean.v.comp) * 360/2/pi) + 180`
+
+The whole described procedure follows Grange, S. K. (2014). Technical note: Averaging wind speeds and directions. Auckland. https://doi.org/10.13140/RG.2.1.3349.2006
+
+The function produces:
+* two plots representing the average wind speed and direction;
+* two `GTiff` files (saved in the R working directory) for the average wind speed and direction.
+
+The function also returns a list containing the following data:
+* `$wind.speed.avrg`: wind speed data (`RasterLayer` class);
+* `$wind.dir.avrg`: wind direction data (`RasterLayer` class).
+
+<br>
+
 ## History
+`version 0.24`: 
+improvements and typos fixes to the help documentation;
+minor fixes to the annotations within the charts returned by the `Aindex()` function;
+bug fix to the `monthlyWind()` function that was causing an error when trying to download wind data using a country code;
+improvement to the `BRsim()` function, which now can optionally perform an agglomerative hierarchical clustering of units based on the BR coefficient; dot plots representing by-cluster proportions are now also provided;
+improvement to the `featClust()` and `moveCost()` functions; both now provide the option to export some output data in `GeoTiff` and `Shapefile` format; 
+`featClust()` now provides the facility to show the clustered features' IDs in the plot showing the input dataset in its spatial context; 
+Uriarte González's slope-dependant walking-time cost function added to the cost functions implemented in `moveCost()`;
+improvement to the `prob.phases.relat()` function, which now accepts relevant parameters for probabilities calculation fed manually by the user;
+`impRst()`, `impShp()`, and `windAver()` functions added.
+
 `version 0.23`: 
 improvements and typos fixes to the help documentation;
 improvements to the labels of the plots produced by the `featClust()` function; fixes to the calculation of the accumulated cost surface and least-cost paths generated by the some of the cost functions implemented in `moveCost()`.
@@ -688,7 +782,7 @@ library(devtools)
 ```
 3) download the `GmAMisc` package from GitHub via the `devtools`'s command: 
 ```r
-install_github("gianmarcoalberti/GmAMisc@v0.23")
+install_github("gianmarcoalberti/GmAMisc@v0.24")
 ```
 4) load the package: 
 ```r

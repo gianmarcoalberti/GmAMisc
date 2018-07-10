@@ -25,11 +25,13 @@ The function allows to perform the refined Nearest Neighbor analysis of point pa
 along with an acceptance interval (with significance level equal to 0.05;
 sensu Baddeley et al., "Spatial Point Patterns. Methodology and Applications with R", CRC Press 2016, 208) based on B (set to 200 by default) realizations of a Complete Spatial Random process.
 The function also allows to control for a first-order effect (i.e., influence of an underlaying numerical covariate) while performing the analysis.
-The covariate must be of RasterLayer class.\cr
+The covariate must be of 'RasterLayer class'.\cr
 }
 \details{
 The function uses a randomized approach to build the mentioned acceptance interval whereby cumulative distributions of average NN distances of random points are computed across B iterations.
 In each iteration, a set of random points (with sample size equal to the number of points of the input feature) is drawn.\cr
+
+Thanks are due to Dason Kurkiewicz for the help provided in writing the code to calculate the acceptance interval.
 }
 \examples{
 data(springs)

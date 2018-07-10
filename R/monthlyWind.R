@@ -29,6 +29,9 @@
 #' @examples
 #' res <- monthlyWind(year=2014, month=12, days=31, lon1=-10, lon2=5, lat1=35, lat2=45) #download wind data for Spain region, averaging the values across the 31 days of December 2014
 #' res <- monthlyWind(country="ESP", year=2014, month=12, days=31) #same as above, but using the country code ESP (=Spain).
+#'
+#' @seealso \code{\link{windAver}}
+#'
 monthlyWind <- function(raster, country=NULL, year=2015, month=01, days=31, lon1=NULL, lon2=NULL, lat1=NULL, lat2=NULL){
   if (is.null(lon1)) {
     if (is.null(country)) {
@@ -42,7 +45,7 @@ monthlyWind <- function(raster, country=NULL, year=2015, month=01, days=31, lon1
     } else {
       #if a raster is not fed and a country code is input instead, get the extent of the area by first dowloading a DEM using 'getData()'
       #for a list of country codes see http://kirste.userpage.fu-berlin.de/diverse/doc/ISO_3166.html
-      raster <- getData("alt", country = country)
+      raster <- raster::getData("alt", country = country)
       lon1 <- raster@extent[1]
       lon2 <- raster@extent[2]
       lat1 <- raster@extent[3]

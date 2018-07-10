@@ -2,9 +2,11 @@
 % Please edit documentation in R/brsim.r
 \name{BRsim}
 \alias{BRsim}
-\title{R function for Brainerd-Robinson simiarity coefficient}
+\title{R function for Brainerd-Robinson similarity coefficient (and optional clustering)}
 \usage{
-BRsim(data, which = "rows", correction = FALSE, rescale = TRUE)
+BRsim(data, which = "rows", correction = FALSE, rescale = TRUE,
+  clust = TRUE, part = NULL, aggl.meth = "ward.D2", oneplot = TRUE,
+  cex.dndr.lab = 0.85, cex.sil.lab = 0.75, cex.dot.plt.lab = 0.8)
 }
 \arguments{
 \item{data:}{dataframe containing the dataset (note: assemblages in rows, variables in columns).}
@@ -14,27 +16,79 @@ BRsim(data, which = "rows", correction = FALSE, rescale = TRUE)
 \item{correction:}{takes FALSE (default) if the user does not want the coefficients to be corrected, while TRUE will provide corrected coefficients.}
 
 \item{rescale:}{takes FALSE if the user does NOT want the coefficients to be rescaled between 0.0 and 1.0 (i.e., the user will get the original version of the Brainerd-Robinson coefficient (spanning from 0 [maximum dissimilarity] to 200 [maximum similarity]), while TRUE (default) will return rescaled coefficient.}
+
+\item{clust:}{TRUE (default) or FALSE if the user does or does not want a agglomerative hierarchical clustering to be performed.}
+
+\item{part:}{desired number of clusters; if NULL (default), an optimal partition is calculated (see Details).}
+
+\item{aggl.meth:}{agglomeration method ("ward.D2" by default).}
+
+\item{oneplot:}{TRUE (default) or FALSE if the user wants or does not want the plots to be visualized in a single window.}
+
+\item{cex.dndr.lab:}{set the size of the labels used in the dendrogram.}
+
+\item{cex.sil.lab:}{set the size of the labels used in the silhouette plot.}
+
+\item{cex.dot.plt.lab:}{set the size of the labels used in the Cleveland's dot charts representing the by-cluster proportions.}
 }
 \description{
-The function allows to calculate the Brainerd-Robinson similarity coefficient, taking as input a cross-tabulation (dataframe).\cr
+The function allows to calculate the Brainerd-Robinson similarity coefficient, taking as input a cross-tabulation (dataframe), and to optionally
+perform an agglomerative hierarchical clustering.\cr
 }
 \details{
-The function returns:\cr
-a) a correlation matrix in tabular form;\cr
-b) a heat-map representing, in a graphical form, the aforementioned correlation matrix.\cr
+The function returns produces a correlation matrix in tabular form and a heat-map representing, in a graphical form, the aforementioned correlation matrix.\cr
 
 In the heat-map (which is built using the 'corrplot' package), the size and the color of the squares are proportional to the Brainerd-Robinson coefficients, which are also reported by numbers.\cr
 
-In order to "penalize" BR similarity coefficient(s) arising from assemblages with unshared categories, the function does what follows: it divides the BR coefficient(s) by the number of unshared categories plus 0.5. The latter addition is simply a means to be still able to penalize coefficient(s) arising from assemblages having just one unshared category. Also note that joint absences will have no weight on the penalization of the coefficient(s). In case of assemblages sharing all their categories, the corrected coefficient(s) turns out to be equal to the uncorrected one.
+In order to "penalize" BR similarity coefficient(s) arising from assemblages with unshared categories, the function does what follows:
+it divides the BR coefficient(s) by the number of unshared categories plus 0.5.
+The latter addition is simply a means to be still able to penalize coefficient(s) arising from assemblages having just one unshared category.
+Also note that joint absences will have no weight on the penalization of the coefficient(s).
+In case of assemblages sharing all their categories, the corrected coefficient(s) turns out to be equal to the uncorrected one.\cr
+
+By setting the parameter 'clust' to TRUE, the units for which the BR coefficients have been calculated will be clustered.
+Notice that the clustering is based on a dissimilarity matrix which is internally calculated as the maximum values of the BR coefficient (i.e., 200 for the normal values, 1 for the rescales values) minus the BR coefficient.
+This allows a simpler reading of the dendrogram which is produced by the function, where the less dissimilar (i.e., more similar) units will be placed at lower
+levels, while more dissimilar (i.e., less similar) units will be placed at higher levels within the dendrogram.\cr
+
+The latter depicts the hierarchical clustering based (by default) on the Ward's agglomeration method; rectangles identify the selected cluster partition.
+Besides the dendrogram, a silhouette plot is produced, which allows to measure how 'good' is the selected cluster solution.\cr
+
+As for the latter, if the parameter 'part' is left empty (default), an optimal cluster solution is obtained.
+The optimal partition is selected via an iterative procedure which locates at which cluster solution the highest average silhouette width is achieved.
+If a user-defined partition is needed, the user can input the desired number of clusters using the parameter 'part'.
+In either case, an additional plot is returned besides the cluster dendrogram and the silhouette plot; it displays a scatterplot in which the cluster solution (x-axis)
+is plotted against the average silhouette width (y-axis). A black dot represent the partition selected either by the iterative procedure or by the user.\cr
+
+Notice that in the silhouette plot, the labels on the left-hand side of the chart show the units' names and the cluster number to which each unit is closer.\cr
+
+The silhouette plot is obtained from the 'silhouette()' function out from the 'cluster' package (https://cran.r-project.org/web/packages/cluster/index.html).\cr
+
+For a detailed description of the silhouette plot, its rationale, and its interpretation, see:\cr
+Rousseeuw P J. 1987. "Silhouettes: A graphical aid to the interpretation and validation of cluster analysis", Journal of Computational and Applied Mathematics 20, 53-65 (http://www.sciencedirect.com/science/article/pii/0377042787901257).\cr
+
+The function also provides a Cleveland's dot plots that represent by-cluster proportions. The clustered units are grouped according to their cluster membership,
+the frequencies are summed, and then expressed as percentages. The latter are represented by the dot plots, along with the average percentage. The latter
+provides a frame of reference to understand which percentage is below, above, or close to the average. The raw data on which the plots are based are
+stored within the list returned by the function (see below).\cr
+
+The function also returns a list storing the following:\cr
+
+-$BR_similarity_matrix: similarity matrix showing the BR coefficients;\cr
+-$BR_distance_matrix: dissimilarity matrix on which the hierarchical clustering is performed (if selected);\cr
+-$avr.silh.width.by.n.of.clusters: average silhouette width by number of clusters  (if clustering is selected);\cr
+-$partition.silh.data: silhouette data for the selected partition (if clustering is selected);\cr
+-$data.w.cluster.membership: copy of the input data table with an additional column storing the cluster membership for each row (if clustering is selected);\cr
+-$by.cluster.proportion: data table showing the proportion of column categories across each cluster; rows sum to 100 percent (if clustering is selected).\cr
 }
 \examples{
 data(assemblage)
-coeff <- BRsim(data=assemblage, correction=FALSE, rescale=TRUE)
+coeff <- BRsim(data=assemblage, correction=FALSE, rescale=TRUE, clust=TRUE, oneplot=FALSE)
+
+library(archdata) #load the 'archdata' package
+data(Nelson) #load the 'Nelson' dataset out of the 'archdata' package
+table <- as.data.frame(as.matrix(Nelson[,3:7])) #build a table to examine
+res <- BRsim(table, which="rows", clust=TRUE, oneplot=FALSE) # perform the analysis and store the results in the 'res' object
 
 }
-\keyword{AUC}
-\keyword{logistic}
-\keyword{model}
-\keyword{optimism}
-\keyword{regression}
-\keyword{validation}
+\keyword{similarity}

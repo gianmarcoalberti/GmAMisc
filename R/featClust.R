@@ -42,10 +42,16 @@
 #' @param to.feat: dataset (NULL by default) representing the feature the distance toward which is used as basis for clustering x;
 #' either points (SpatialPointsDataFrame class), polygons (SpatialPolygonsDataFrame class), or polylines (SpatialLinesDataFrame).
 #' @param aggl.meth: agglomeration method ("ward.D2" by default).
-#' @param part: desired number of clusters; if NULL (default), an optimal partition is calculated.
+#' @param part: desired number of clusters; if NULL (default), an optimal partition is calculated (see Details).
+#' @param showID: TRUE (default) or FALSE if the used wants or does not want the ID of the clustered features to be displayed in the plot where
+#' the features are colored by cluster membership.
 #' @param oneplot: TRUE (default) or FALSE if the user wants or does not want the plots to be visualized in a single window.
 #' @param cex.dndr.lab: set the size of the labels used in the dendrogram.
 #' @param cex.sil.lab: set the size of the labels used in the silhouette plot.
+#' @param cex.feat.lab: set the size of the labels used (if 'showID' is set to TRUE) to show the clustered features' IDs.
+#' @param col.feat.lab: set the color of the clustered features' IDs ('black' by default).
+#' @param export: TRUE or FALSE (default) if the user wants or does not want the clustered input dataset to be exported;
+#' if TRUE, the input dataset with a new variable indicating the cluster membership will be exported as a shapefile.
 #' @keywords clustering
 #' @export
 #' @examples
@@ -62,7 +68,7 @@
 #'
 #' res <- featClust(points, polygons) #cluster points on the basis of their distance to the nearest polygon
 #'
-featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot=TRUE, cex.dndr.lab = 0.85, cex.sil.lab = 0.75) {
+featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, showID=TRUE, oneplot=TRUE, cex.dndr.lab = 0.85, cex.sil.lab = 0.75, cex.feat.lab=0.65, col.feat.lab="black", export=FALSE) {
 
   #if there is no to.feature, if the input dataset is a SpatialPolygonsDataframe, create a dataframe storing polygons area;
   #otherwise store points' coordinates; this is skipped if there actually is a to.feature
@@ -152,6 +158,15 @@ featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot
          main="Plot of the features colored by cluster membership",
          cex.main=0.90,
          axes=TRUE)
+
+    #show the ID of the feature if showID is equal to TRUE and the feature is NOT a polyline
+    if(showID==TRUE & class(x)[1]!="SpatialLinesDataFrame"){
+    text(coordinates(x),
+         labels=x$feat_ID,
+         pos = 4,
+         cex=cex.feat.lab,
+         col=col.feat.lab)
+    }
   }
 
   #if there is a to.feat...
@@ -169,6 +184,15 @@ featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot
            cex.main=0.90,
            axes=TRUE)
 
+      #show the ID of the feature if showID is equal to TRUE and the feature is NOT a polyline
+      if(showID==TRUE & class(x)[1]!="SpatialLinesDataFrame"){
+        text(coordinates(x),
+             labels=x$feat_ID,
+             pos = 4,
+             cex=cex.feat.lab,
+             col=col.feat.lab)
+      }
+
       plot(to.feat, add=TRUE)
 
     } else {
@@ -181,6 +205,15 @@ featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot
            pch=20,
            col=x$clust,
            add=TRUE)
+
+      #show the ID of the feature if showID is equal to TRUE and the feature is NOT a polyline
+      if(showID==TRUE & class(x)[1]!="SpatialLinesDataFrame"){
+        text(coordinates(x),
+             labels=x$feat_ID,
+             pos = 4,
+             cex=cex.feat.lab,
+             col=col.feat.lab)
+      }
     }
   }
 
@@ -234,6 +267,10 @@ featClust <- function(x, to.feat=NULL, aggl.meth = "ward.D2", part=NULL, oneplot
        pos = 3,
        offset = 1.2,
        srt = 90)
+
+  if(export==TRUE){
+    writeOGR(x, ".", "clustered_dataset", driver="ESRI Shapefile")
+  }
 
   results <- list("dist.matrix"=d,
                   "avr.silh.width.by.n.of.clusters"=sil.res,

@@ -5,7 +5,9 @@
 \title{R function for features clustering on the basis of distances/area}
 \usage{
 featClust(x, to.feat = NULL, aggl.meth = "ward.D2", part = NULL,
-  oneplot = TRUE, cex.dndr.lab = 0.85, cex.sil.lab = 0.75)
+  showID = TRUE, oneplot = TRUE, cex.dndr.lab = 0.85,
+  cex.sil.lab = 0.75, cex.feat.lab = 0.65, col.feat.lab = "black",
+  export = FALSE)
 }
 \arguments{
 \item{x:}{dataset whose feature are to be clustered; either points (SpatialPointsDataFrame class) or polygons (SpatialPolygonsDataFrame class);
@@ -16,13 +18,23 @@ either points (SpatialPointsDataFrame class), polygons (SpatialPolygonsDataFrame
 
 \item{aggl.meth:}{agglomeration method ("ward.D2" by default).}
 
-\item{part:}{desired number of clusters; if NULL (default), an optimal partition is calculated.}
+\item{part:}{desired number of clusters; if NULL (default), an optimal partition is calculated (see Details).}
+
+\item{showID:}{TRUE (default) or FALSE if the used wants or does not want the ID of the clustered features to be displayed in the plot where
+the features are colored by cluster membership.}
 
 \item{oneplot:}{TRUE (default) or FALSE if the user wants or does not want the plots to be visualized in a single window.}
 
 \item{cex.dndr.lab:}{set the size of the labels used in the dendrogram.}
 
 \item{cex.sil.lab:}{set the size of the labels used in the silhouette plot.}
+
+\item{cex.feat.lab:}{set the size of the labels used (if 'showID' is set to TRUE) to show the clustered features' IDs.}
+
+\item{col.feat.lab:}{set the color of the clustered features' IDs ('black' by default).}
+
+\item{export:}{TRUE or FALSE (default) if the user wants or does not want the clustered input dataset to be exported;
+if TRUE, the input dataset with a new variable indicating the cluster membership will be exported as a shapefile.}
 }
 \description{
 The function provides the facility to cluster the features of the input dataset on the basis of either their (projected) coordinates (for points; SpatialPointsDataFrame class)

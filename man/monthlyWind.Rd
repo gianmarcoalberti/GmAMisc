@@ -47,5 +47,9 @@ The function builds upon the 'wind.dl()' function from Javier Fernández-López'
 \examples{
 res <- monthlyWind(year=2014, month=12, days=31, lon1=-10, lon2=5, lat1=35, lat2=45) #download wind data for Spain region, averaging the values across the 31 days of December 2014
 res <- monthlyWind(country="ESP", year=2014, month=12, days=31) #same as above, but using the country code ESP (=Spain).
+
+}
+\seealso{
+\code{\link{windAver}}
 }
 \keyword{wind}

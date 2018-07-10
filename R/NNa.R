@@ -83,7 +83,7 @@ NNa <- function(feature, studyplot=NULL, buffer=0, B=199, cov.var=NULL, addmap=T
     }
 
     #calculate the density of points
-    pointdensity <- length(feature) / area(region)
+    pointdensity <- length(feature) / spatstat::area(region)
 
     #calculate the observed R value, and store it
     obs.Rindex <- obs.NNdist / (1/(2*sqrt(pointdensity)))
@@ -106,7 +106,7 @@ NNa <- function(feature, studyplot=NULL, buffer=0, B=199, cov.var=NULL, addmap=T
     cov.var.im <- as.im(cov.var)
 
     #calculate the density of points
-    pointdensity <- length(feature) / area(cov.var.im)
+    pointdensity <- length(feature) / spatstat::area(cov.var.im)
 
     #calculate the observed R value, and store it
     obs.Rindex <- obs.NNdist / (1/(2*sqrt(pointdensity)))

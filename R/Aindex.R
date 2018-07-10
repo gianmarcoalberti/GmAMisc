@@ -130,7 +130,7 @@ Aindex <- function(x, y, studyplot=NULL, B=199, addmap=FALSE){
          cex.main=0.9, col=NA,
          border="red",
          lty=2,
-         aexs=TRUE)
+         axes=TRUE)
     plot(x,
          add=TRUE,
          pch=20)
@@ -141,7 +141,7 @@ Aindex <- function(x, y, studyplot=NULL, B=199, addmap=FALSE){
   }
 
   #plot the histogram of the permuted distirbution of the A index
-  hist(Aind.perm, main=paste0("Freq. distribution of Hodder-Okell's A index\n across ", B, "permutations"),
+  hist(Aind.perm, main=paste0("Freq. distribution of Hodder-Okell's A index\n across ", B, " permutations"),
        sub=paste0("A-index: ", round(Aind, 3),"\n p-value segregated: ", p.lower, "; p-value associated: ", p.upper, "\np-value different from randomly mingled: ", two.tailed.p, "\nA<1 (segregated); A=1 (randomly minlged); A>1 (associated)"),
        xlab="",
        cex.main=0.90,
